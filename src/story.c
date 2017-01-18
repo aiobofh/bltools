@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <string.h>
 
 #include "story.h"
@@ -101,13 +102,94 @@ static int has_estimate_range(int estimate, const char* str) {
   return 1;
 }
 
+static int has_slogan(int orgmode_todo, int estimate, int estimate_range, const char *str) {
+  int offset = 10;
+
+  /* It must be an org-mode TODO item */
+  if (0 == orgmode_todo) {
+    return 0;
+  }
+
+  /* It must have an estimate */
+  if (0 == estimate) {
+    return 0;
+  }
+
+  /* It could have an estiamte range */
+  if (1 == estimate_range) {
+    offset = 13;
+  }
+
+  /* It should not be a ' ' */
+  if (' ' == str[offset]) {
+    return 0;
+  }
+
+  /* ... Nor just a tag */
+  if (':' == str[offset]) {
+    return 0;
+  }
+
+  return 1;
+}
+
+static int get_slogan_length(int slogan, int estimate_range, const char* str) {
+  const int len = strlen(str);
+  int l = 0;
+  int offset = 10;
+
+  /* It must be a slogan */
+  if (0 == slogan) {
+    return 0;
+  }
+
+  /* And might have an estimate range */
+  if (1 == estimate_range) {
+    offset = 13;
+  }
+
+  /* Count charactesr until we reach a tag or the end of the string */
+  while ((':' != str[offset]) && (offset < len)) {
+    offset++;
+    l++;
+  }
+
+  /* Reverse to the first non-space character */
+  offset--;
+  while (' ' == str[offset]) {
+    offset--;
+    l--;
+  }
+
+  return l;
+}
+
+void get_slogan(char* dest, int estimate_range, int slogan_length, const char* str) {
+  int offset = 10;
+
+  assert(0 != slogan_length && "The slogan must have a range");
+
+  /* The story might have an estimate-range */
+  if (1 == estimate_range) {
+    offset = 13;
+  }
+
+  /* Copy the slonan-part of the string */
+  memcpy(dest, &str[offset], slogan_length);
+
+  /* And null-terminate it */
+  dest[slogan_length] = '\0';
+}
+
 static int has_tags(int orgmode_todo, const char* str) {
   size_t len;
 
+  /* It must be an org-mode item */
   if (1 != orgmode_todo) {
     return 0;
   }
 
+  /* And have a string */
   if (NULL == str) {
     return 0;
   }
@@ -163,7 +245,7 @@ static int count_tags(int tags, const char* str) {
   return cnt;
 }
 
-static int is_story(const char* str) {
+int is_story(const char* str) {
   if (0 == call(has_orgmode_todo(str))) {
     return 0;
   }
@@ -173,4 +255,43 @@ static int is_story(const char* str) {
   }
 
   return 1;
+}
+
+static status_t get_status(int story, const char* str) {
+  assert(1 == story && "is_story() must have returned 1 before calling");
+  story = story;
+  if (0 == strncmp(&str[2], "TODO", 4)) {
+    return STATUS_TODO;
+  }
+  return STATUS_DONE;
+}
+
+static int get_estimate(int estimate, const char* str) {
+  assert(1 == estimate && "had_estimate() must have returned 1 before calling");
+  estimate = estimate;
+  return (str[7] - '0') * 10 + (str[8] - '0');
+}
+
+static int get_max_estimate(int estimate_range, const char* str) {
+  assert(1 == estimate_range && "had_estimate_range() must have returned 1 before calling");
+  estimate_range = estimate_range;
+  return (str[10] - '0') * 10 + (str[11] - '0');
+}
+
+void story_init(int story, story_t* s, const char* str) {
+  assert(1 == story && "is_story() must have returned 1 before calling");
+
+  /* Extract the status */
+  s->status = get_status(story, str);
+
+  /* Extract the estimate */
+  if (1 == has_estimate_range(1, str)) {
+    s->estimate_type = ESTIMATE_RANGE;
+    s->estimate.range.min_points = get_estimate(1, str);
+    s->estimate.range.max_points = get_max_estimate(1, str);
+  }
+  else {
+    s->estimate_type = ESTIMATE_POINTS;
+    s->estimate.points = get_estimate(1, str);
+  }
 }

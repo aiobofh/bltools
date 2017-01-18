@@ -175,7 +175,7 @@ test(is_story_should_assess_stories_correctly) {
   cutest_mock.has_orgmode_todo.func = has_orgmode_todo;
   cutest_mock.has_estimate.func = has_estimate;
 
-  /* Top-level test of is_story() */
+  /* Top-level kick-the-tires test of is_story() */
   assert_eq(1, is_story("* TODO 01 This is a story"));
   assert_eq(1, is_story("* TODO 01-02 This is a story"));
   assert_eq(1, is_story("* DONE 01 This is a story"));
@@ -193,4 +193,115 @@ test(is_story_should_assess_stories_correctly) {
   assert_eq(0, is_story("*  TODO 01 Nor is this"));
   assert_eq(0, is_story("* TODO  01 Nor is this"));
   assert_eq(0, is_story("* TODO 01  Nor is this"));
+}
+
+/*
+ * get_status()
+ */
+test(get_status_should_return_STATUS_TODO_if_the_row_is_a_TODO_row) {
+  assert_eq(STATUS_TODO, get_status(1, "* TODO Slogan"));
+}
+
+test(get_status_should_return_STATUS_DONE_if_the_row_is_a_DONE_row) {
+  assert_eq(STATUS_DONE, get_status(1, "* DONE Slogan"));
+}
+
+/*
+ * get_estimate()
+ */
+test(get_estimate_should_return_2_if_estimate_is_02) {
+  assert_eq(2, get_estimate(1, "* DONE 02 Slogan"));
+}
+
+test(get_estimate_should_return_22_if_estimate_is_22) {
+  assert_eq(22, get_estimate(1, "* DONE 22 Slogan"));
+}
+
+/*
+ * get_max_estimate()
+ */
+test(get_max_estimate_should_return_2_if_max_estimate_is_02) {
+  assert_eq(2, get_max_estimate(1, "* DONE 00-02 Slogan"));
+}
+
+test(get_max_estimate_should_return_22_if_max_estimate_is_22) {
+  assert_eq(22, get_max_estimate(1, "* DONE 99-22 Slogan"));
+}
+
+/*
+ * has_slogan()
+ */
+test(has_slogan_shall_return_0_if_no_orgmode_todo) {
+  assert_eq(0, has_slogan(0, 1, 0, "* TODO 01 Slogan       :tag:"));
+}
+
+test(has_slogan_shall_return_0_if_no_estimate) {
+  assert_eq(0, has_slogan(1, 0, 0, "* TODO 01 Slogan       :tag:"));
+}
+
+test(has_slogan_shall_return_1_if_a_story_has_a_slogan_with_estimate) {
+  assert_eq(1, has_slogan(1, 1, 0, "* TODO 01 Slogan       :tag:"));
+}
+
+test(has_slogan_shall_return_1_if_a_story_has_a_slogan_with_estimate_range) {
+  assert_eq(1, has_slogan(1, 1, 1, "* TODO 01-03 Slogan       :tag:"));
+}
+
+/*
+ * get_slogan_length()
+ */
+test(get_slogan_length_shall_return_0_if_no_slogan) {
+  assert_eq(0, get_slogan_length(0, 0, "* TODO 01 Slogan    :tag:"));
+}
+
+test(get_slogan_length_shall_return_the_length_of_the_slogan) {
+  assert_eq(6, get_slogan_length(1, 0, "* TODO 01 Slogan    :tag:"));
+  assert_eq(6, get_slogan_length(1, 1, "* TODO 01-03 Slogan     :tag:"));
+  assert_eq(9, get_slogan_length(1, 0, "* TODO 01 Slogannnn"));
+  assert_eq(9, get_slogan_length(1, 1, "* TODO 01-03 Slogannnn"));
+}
+
+/*
+ * get_slogan()
+ */
+test(get_slogan_shall_copy_the_slogan_from_a_story_to_dest) {
+  char dest[7];
+  get_slogan(dest, 0, 6, "* TODO 01 Slogan     :tag:");
+  assert_eq(0 == strcmp(dest, "Slogan"));
+
+  get_slogan(dest, 1, 6, "* TODO 01-12 SloGan     :tag:");
+  assert_eq(0 == strcmp(dest, "SloGan"));
+
+  get_slogan(dest, 0, 6, "* TODO 01 SloGAn");
+  assert_eq(0 == strcmp(dest, "SloGAn"));
+}
+
+/*
+ * story_init()
+ */
+test(story_init_should_initialize_a_DONE_story_if_it_is_DONE) {
+  story_t story;
+  story_init(1, &story, "* DONE");
+  assert_eq(STATUS_DONE, story.status);
+}
+
+test(story_init_should_initialize_a_TODO_story_if_it_is_TODO) {
+  story_t story;
+  story_init(1, &story, "* TODO");
+  assert_eq(STATUS_TODO, story.status);
+}
+
+test(story_init_should_initialize_a_story_with_estimate) {
+  story_t story;
+  story_init(1, &story, "* TODO 02 ");
+  assert_eq(ESTIMATE_POINTS, story.estimate_type);
+  assert_eq(2, story.estimate.points);
+}
+
+test(story_init_should_initialize_a_story_with_estimate_range) {
+  story_t story;
+  story_init(1, &story, "* TODO 02-03 ");
+  assert_eq(ESTIMATE_RANGE, story.estimate_type);
+  assert_eq(2, story.estimate.range.min_points);
+  assert_eq(3, story.estimate.range.max_points);
 }
