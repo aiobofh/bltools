@@ -1,0 +1,6 @@
+src/cutest
+src/cutest_*
+src/*_test
+src/*_mocks.h
+src/*junit_report.xml
+src/*_test_run.c
