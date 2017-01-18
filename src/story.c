@@ -24,6 +24,11 @@ static int has_orgmode_todo(const char* str) {
     return 0;
   }
 
+  /* ... Then a character other than space. */
+  if (' ' == s[5]) {
+    return 0;
+  }
+
   return 1;
 }
 
@@ -48,8 +53,13 @@ static int has_estimate(int orgmode_todo, const char* str) {
     return 0;
   }
 
-  /* ... Followed by a space */
+  /* ... Followed by space or a dash */
   if ((' ' != s[2]) && ('-' != s[2])) {
+    return 0;
+  }
+
+  /* .. And only one space (if single estimate) */
+  if ((' ' == s[3])) {
     return 0;
   }
 
@@ -80,6 +90,11 @@ static int has_estimate_range(int estimate, const char* str) {
 
   /* ... And a space before the slogan */
   if (!(' ' == s[3])) {
+    return 0;
+  }
+
+  /* .. And only one space */
+  if ((' ' == s[4])) {
     return 0;
   }
 
@@ -146,4 +161,16 @@ static int count_tags(int tags, const char* str) {
   }
 
   return cnt;
+}
+
+static int is_story(const char* str) {
+  if (0 == call(has_orgmode_todo(str))) {
+    return 0;
+  }
+
+  if (0 == call(has_estimate(1, str))) {
+    return 0;
+  }
+
+  return 1;
 }
