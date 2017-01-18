@@ -4,6 +4,9 @@
 
 static int has_orgmode_todo(const char* str) {
   const char *s = &str[2];
+  if (NULL == str) {
+    return 0;
+  }
   if ('*' != str[0]) {
     return 0;
   }
@@ -22,6 +25,9 @@ static int has_estimate(int orgmode_todo, const char* str) {
   if (1 != orgmode_todo) {
     return 0;
   }
+  if (NULL == str) {
+    return 0;
+  }
   if (strlen(str) < len) {
     return 0;
   }
@@ -38,6 +44,9 @@ static int has_estimate_range(int estimate, const char* str) {
   const size_t len = strlen("* SSSS 00");
   const char *s = &str[len];
   if (1 != estimate) {
+    return 0;
+  }
+  if (NULL == str) {
     return 0;
   }
   if ((' ' != s[0]) && ('-' != s[0])) {
