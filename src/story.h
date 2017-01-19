@@ -34,4 +34,6 @@ typedef struct {
   int* tags;
 } story_t;
 
+int is_story(const char* str);
+
 #endif

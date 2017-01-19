@@ -9,5 +9,8 @@ cutest:
 
 -include cutest/src/cutest.mk
 
+blcheck: blcheck.c story.c
+	$(CC) -o $@ $^ -D"call(func)=func" -O2
+
 clean::
-	$(Q)$(RM) -f *~
+	$(Q)$(RM) -f *~ blcheck
