@@ -41,10 +41,6 @@ static int has_estimate(int orgmode_todo, const char* str) {
     return 0;
   }
 
-  if (NULL == str) {
-    return 0;
-  }
-
   if (strlen(str) < len) {
     return 0;
   }
@@ -72,10 +68,6 @@ static int has_estimate_range(int estimate, const char* str) {
   const char *s = &str[len];
 
   if (1 != estimate) {
-    return 0;
-  }
-
-  if (NULL == str) {
     return 0;
   }
 
@@ -121,12 +113,12 @@ static int has_slogan(int orgmode_todo, int estimate, int estimate_range, const 
   }
 
   /* It should not be a ' ' */
-  if (' ' == str[offset]) {
+  if (' ' == str[offset + 1]) {
     return 0;
   }
 
   /* ... Nor just a tag */
-  if (':' == str[offset]) {
+  if (':' == str[offset + 1]) {
     return 0;
   }
 
@@ -209,10 +201,6 @@ static int has_tags(int orgmode_todo, const char* str) {
     if (':' == str[len]) {
       break;
     }
-  }
-
-  if (0 == len) {
-    return 0;
   }
 
   return 1;

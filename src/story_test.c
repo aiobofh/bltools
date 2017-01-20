@@ -46,6 +46,10 @@ test(has_estimate_shall_return_0_if_the_row_has_no_estimate) {
   assert_eq(0, has_estimate(1, "* TODO Slogan "));
 }
 
+test(has_estimate_shall_return_0_if_there_is_no_space_or_dash_after) {
+  assert_eq(0, has_estimate(1, "* TODO 03Slogan "));
+}
+
 test(has_estimate_shall_return_0_if_the_row_is_too_short) {
   assert_eq(0, has_estimate(1, "* TODO"));
 }
@@ -241,6 +245,11 @@ test(has_slogan_shall_return_0_if_no_estimate) {
 
 test(has_slogan_shall_return_1_if_a_story_has_a_slogan_with_estimate) {
   assert_eq(1, has_slogan(1, 1, 0, "* TODO 01 Slogan       :tag:"));
+}
+
+test(has_slogan_shall_return_0_if_only_spaces_or_no_slogan) {
+  assert_eq(0, has_slogan(1, 1, 1, "* TODO 01        :tag:"));
+  assert_eq(0, has_slogan(1, 1, 1, "* TODO 01 :tag:"));
 }
 
 test(has_slogan_shall_return_1_if_a_story_has_a_slogan_with_estimate_range) {
