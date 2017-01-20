@@ -4,3 +4,6 @@ src/*_test
 src/*_mocks.h
 src/*junit_report.xml
 src/*_test_run.c
+src/blcheck
+src/*.gcno
+src/*.gcda
