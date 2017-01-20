@@ -2,10 +2,11 @@ Q=@
 
 .SUFFIXES:
 
-all: cutest check
+all:
+	$(Q)make -s cutest && make -s check && make -s blcheck
 
 cutest:
-	git clone https://github.com/aiobofh/cutest.git
+	$(Q)git clone "https://github.com/aiobofh/cutest.git" -q
 
 -include cutest/src/cutest.mk
 -include cutest/src/coverage.mk
@@ -14,4 +15,4 @@ blcheck: blcheck.c story.c
 	$(CC) -o $@ $^ -D"call(func)=func" -O2
 
 clean::
-	$(Q)$(RM) -f *~ blcheck
+	$(Q)$(RM) -rf *~ blcheck cutest
