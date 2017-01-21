@@ -96,6 +96,7 @@ static int has_estimate_range(int estimate, const char* str) {
   return 1;
 }
 
+
 static int has_slogan(int orgmode_todo, int estimate, int estimate_range, const char *str) {
   int offset = 10;
 
@@ -266,6 +267,20 @@ static int get_max_estimate(int estimate_range, const char* str) {
   assert(1 == estimate_range && "had_estimate_range() must have returned 1 before calling");
   estimate_range = estimate_range;
   return (str[10] - '0') * 10 + (str[11] - '0');
+}
+
+void sum_min_estimates(int *sum, story_t *story) {
+  assert(story->estimate.points == story->estimate.range.min_points &&
+	 "sum_min_estimates assumes union is gcc-aligned");
+  *sum += story->estimate.points;
+}
+
+void sum_max_estimates(int *sum, story_t *story){
+  if(story->estimate_type==ESTIMATE_RANGE)
+    *sum += story->estimate.range.max_points;
+  else
+    *sum += story->estimate.points;
+  
 }
 
 void story_init(int story, story_t* s, const char* str) {

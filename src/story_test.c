@@ -224,6 +224,53 @@ test(get_estimate_should_return_22_if_estimate_is_22) {
 }
 
 /*
+ * sum_estimates()
+ */
+test(sum_min_estimates_shall_add_min_estimate_to_sum){
+  int sum=4;
+  story_t story;
+
+  story.estimate_type=ESTIMATE_POINTS;
+  story.estimate.points=1;
+  sum_min_estimates(&sum,&story);
+  assert_eq(5,sum);
+
+}
+
+test(sum_min_estimates_shall_add_min_estimate_from_range_to_sum){
+  int sum=4;
+  story_t story;
+
+  story.estimate_type=ESTIMATE_RANGE;
+  story.estimate.range.min_points=6;
+  sum_min_estimates(&sum,&story);
+  assert_eq(10,sum);
+}
+
+test(sum_max_estimates_shall_add_max_estimate_to_sum){
+  int sum=20;
+  story_t story;
+
+  story.estimate_type = ESTIMATE_POINTS;
+  story.estimate.points=30;
+  sum_max_estimates(&sum,&story);
+  assert_eq(50,sum);
+}
+
+test(sum_max_estimates_range_shall_add_max_estimate_from_range_to_sum){
+  int sum=40;
+  story_t story;
+
+  story.estimate_type=ESTIMATE_RANGE;
+  story.estimate.range.max_points=30;
+  sum_max_estimates(&sum,&story);
+  assert_eq(70,sum);
+  
+}
+
+
+
+/*
  * get_max_estimate()
  */
 test(get_max_estimate_should_return_2_if_max_estimate_is_02) {
