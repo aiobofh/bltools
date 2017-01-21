@@ -29,7 +29,7 @@ typedef struct {
     } range;
     int points;
   } estimate;
-  char *slogan;
+  char* slogan;
   int tag_cnt;
   int* tags;
 } story_t;
