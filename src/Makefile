@@ -14,5 +14,8 @@ cutest:
 blcheck: blcheck.c story.c backlog.c
 	$(CC) -o $@ $^ -D"call(func)=func" -O2
 
+blsum: blsum.c story.c backlog.c
+	$(CC) -o $@ $^ -D"call(func)=func" -O2
+
 clean::
 	$(Q)$(RM) -rf *~ blcheck cutest
