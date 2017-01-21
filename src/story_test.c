@@ -174,8 +174,10 @@ test(is_story_should_return_0_if_has_orgmode_todo_ok_but_has_estimate_fails) {
   assert_eq(0, is_story(str));
 }
 
+/* TODO: Switch to module_test() macro when supported in cutest. */
 test(is_story_should_assess_stories_correctly) {
   /* Integrate helpers by not mocking them */
+  /* TODO: Remove these when module_test() macro is done in cutest. */
   cutest_mock.has_orgmode_todo.func = has_orgmode_todo;
   cutest_mock.has_estimate.func = has_estimate;
 
@@ -288,29 +290,216 @@ test(get_slogan_shall_copy_the_slogan_from_a_story_to_dest) {
 /*
  * story_init()
  */
-test(story_init_should_initialize_a_DONE_story_if_it_is_DONE) {
+test(story_init_shall_call_get_status_with_correct_arguments) {
   story_t story;
-  story_init(1, &story, "* DONE");
+
+  story_init(1234, &story, (char*)5678);
+
+  assert_eq(1, cutest_mock.get_status.call_count);
+  assert_eq(1234, cutest_mock.get_status.args.arg0);
+  assert_eq((char*)5678, cutest_mock.get_status.args.arg1);
+}
+
+test(story_init_shall_initialize_a_DONE_story_if_it_is_DONE) {
+  story_t story;
+
+  cutest_mock.get_status.retval = STATUS_DONE;
+
+  story_init(1234, &story, NULL);
+
   assert_eq(STATUS_DONE, story.status);
 }
 
-test(story_init_should_initialize_a_TODO_story_if_it_is_TODO) {
+test(story_init_shall_initialize_a_TODO_story_if_it_is_TODO) {
   story_t story;
-  story_init(1, &story, "* TODO");
+
+  cutest_mock.get_status.retval = STATUS_TODO;
+
+  story_init(1234, &story, NULL);
+
   assert_eq(STATUS_TODO, story.status);
 }
 
-test(story_init_should_initialize_a_story_with_estimate) {
+test(story_init_shall_has_estimate_with_correct_arguments) {
   story_t story;
-  story_init(1, &story, "* TODO 02 ");
-  assert_eq(ESTIMATE_POINTS, story.estimate_type);
-  assert_eq(2, story.estimate.points);
+
+  story_init(1234, &story, (char*)5678);
+
+  assert_eq(1, cutest_mock.has_estimate.call_count);
+  assert_eq(1234, cutest_mock.has_estimate.args.arg0);
+  assert_eq((char*)5678, cutest_mock.has_estimate.args.arg1);
 }
 
-test(story_init_should_initialize_a_story_with_estimate_range) {
-  story_t story;
-  story_init(1, &story, "* TODO 02-03 ");
+#define STORY_INIT_FIXTURE_HAS_ESTIMATE         \
+  story_t story;                                \
+  cutest_mock.has_estimate.retval = 8765;       \
+  story_init(1, &story, (char*)5678)
+
+test(story_init_shall_has_estimate_range_with_correct_arguments) {
+  STORY_INIT_FIXTURE_HAS_ESTIMATE;
+  assert_eq(1, cutest_mock.has_estimate_range.call_count);
+  assert_eq(8765, cutest_mock.has_estimate_range.args.arg0);
+  assert_eq((char*)5678, cutest_mock.has_estimate_range.args.arg1);
+}
+
+test(story_init_shall_initialize_a_story_with_an_estimate_if_no_range) {
+  const int some_estimate = 32;
+
+  cutest_mock.get_estimate.retval = some_estimate;
+
+  STORY_INIT_FIXTURE_HAS_ESTIMATE;
+
+  assert_eq(ESTIMATE_POINTS, story.estimate_type);
+  assert_eq(some_estimate, story.estimate.points);
+}
+
+#define STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE   \
+  story_t story;                                \
+  cutest_mock.has_estimate.retval = 8765;       \
+  cutest_mock.has_estimate_range.retval = 4321; \
+  story_init(1, &story, (char*)5678);
+
+test(story_init_shall_call_has_slogan_with_correct_arguments) {
+  STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE;
+  assert_eq(1, cutest_mock.has_slogan.call_count);
+  assert_eq(1, cutest_mock.has_slogan.args.arg0);
+  assert_eq(8765, cutest_mock.has_slogan.args.arg1);
+  assert_eq(4321, cutest_mock.has_slogan.args.arg2);
+  assert_eq((char*)5678, cutest_mock.has_slogan.args.arg3);
+}
+
+test(story_init_shall_initialize_a_story_with_an_estimate_range_if_range) {
+  const int some_estimate = 32;
+  const int another_estimate = 64;
+
+  cutest_mock.get_estimate.retval = some_estimate;
+  cutest_mock.get_max_estimate.retval = another_estimate;
+
+  STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE;
+
   assert_eq(ESTIMATE_RANGE, story.estimate_type);
-  assert_eq(2, story.estimate.range.min_points);
+  assert_eq(some_estimate, story.estimate.range.min_points);
+  assert_eq(another_estimate, story.estimate.range.max_points);
+}
+
+#define STORY_INIT_FIXTURE_HAS_NO_ESTIMATE_RANGE        \
+  story_t story;                                        \
+  cutest_mock.has_estimate.retval = 8765;               \
+  cutest_mock.has_estimate_range.retval = 0;            \
+  story_init(1, &story, (char*)5678);
+
+test(story_init_shall_call_get_estimate_correct_if_no_range_is_specified) {
+  STORY_INIT_FIXTURE_HAS_NO_ESTIMATE_RANGE;
+  assert_eq(1, cutest_mock.get_estimate.call_count);
+  assert_eq(8765, cutest_mock.get_estimate.args.arg0);
+  assert_eq((char*)5678, cutest_mock.get_estimate.args.arg1);
+}
+
+test(story_init_shall_not_call_get_max_estimate_if_no_range_is_specified) {
+  STORY_INIT_FIXTURE_HAS_NO_ESTIMATE_RANGE;
+  assert_eq(0, cutest_mock.get_max_estimate.call_count);
+}
+
+test(story_init_shall_call_get_estimate_correct_if_range_is_specified) {
+  STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE;
+  assert_eq(1, cutest_mock.get_estimate.call_count);
+  assert_eq(8765, cutest_mock.get_estimate.args.arg0);
+  assert_eq((char*)5678, cutest_mock.get_estimate.args.arg1);
+}
+
+test(story_init_shall_call_get_max_estimate_correctly_if_range_is_specified) {
+  STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE;
+  assert_eq(1, cutest_mock.get_max_estimate.call_count);
+  assert_eq(4321, cutest_mock.get_max_estimate.args.arg0);
+  assert_eq((char*)5678, cutest_mock.get_max_estimate.args.arg1);
+}
+
+#define STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE_AND_SLOGAN   \
+  story_t story;                                           \
+  cutest_mock.has_slogan.retval = 1234;                    \
+  cutest_mock.has_estimate.retval = 8765;                  \
+  cutest_mock.has_estimate_range.retval = 4321;
+
+test(story_init_shall_call_get_slogan_length_correctly) {
+  STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE_AND_SLOGAN;
+  story_init(1, &story, (char*)5678);
+  assert_eq(1, cutest_mock.get_slogan_length.call_count);
+  assert_eq(1234, cutest_mock.get_slogan_length.args.arg0);
+  assert_eq(4321, cutest_mock.get_slogan_length.args.arg1);
+  assert_eq((char*)5678, cutest_mock.get_slogan_length.args.arg2);
+}
+
+test(story_init_shall_malloc_the_correct_number_of_bytes_for_slogan) {
+  STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE_AND_SLOGAN;
+
+  cutest_mock.get_slogan_length.retval = 13;
+  cutest_mock.malloc.retval = (void*)42; /* Avaid the out-of-memory assert*/
+
+  story_init(1, &story, (char*)5678);
+
+  assert_eq(1, cutest_mock.malloc.call_count);
+  assert_eq(13, cutest_mock.malloc.args.arg0);
+}
+
+test(story_init_shall_call_get_slogan_with_correct_arguments) {
+  STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE_AND_SLOGAN;
+
+  cutest_mock.get_slogan_length.retval = 13;
+  cutest_mock.malloc.retval = (void*)42;
+
+  story_init(1, &story, (char*)5678);
+
+  assert_eq((char*)42, cutest_mock.get_slogan.args.arg0);
+  assert_eq(4321, cutest_mock.get_slogan.args.arg1);
+  assert_eq(13, cutest_mock.get_slogan.args.arg2);
+  assert_eq((char*)5678, cutest_mock.get_slogan.args.arg3);
+}
+
+test(story_init_shall_initialize_a_story_with_a_slogan_when_there_is_one) {
+  STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE_AND_SLOGAN;
+
+  cutest_mock.get_slogan_length.retval = 13;
+  cutest_mock.malloc.retval = (void*)42;
+
+  story_init(1, &story, (char*)5678);
+
+  /* No need to test anythong else than that malloc set the pointer where
+   * the slogan is supposed to be copied to. */
+  assert_eq((char*)42, story.slogan);
+}
+
+/* TODO: Switch to module_test() macro when supported in cutest. */
+test(story_should_init_shall_initialize_stories_correctly) {
+  story_t story;
+  char dest[1024];
+
+  /* Integrate helpers by not mocking them */
+  /* TODO: Remove these when module_test() macro is done in cutest. */
+  cutest_mock.get_status.func = get_status;
+  cutest_mock.has_estimate.func = has_estimate;
+  cutest_mock.has_estimate_range.func = has_estimate_range;
+  cutest_mock.has_slogan.func = has_slogan;
+  cutest_mock.get_estimate.func = get_estimate;
+  cutest_mock.get_max_estimate.func = get_max_estimate;
+  cutest_mock.get_slogan_length.func = get_slogan_length;
+  cutest_mock.get_slogan.func = get_slogan;
+
+  /* But still mock the malloc to return a known data storage address */
+  cutest_mock.malloc.retval = &dest; /* No free(), hence no memoru leek */
+
+  /* Top-level kick-the-tires test of is_story() */
+  story_init(1, &story, "* TODO 01 This is the slogan 1");
+
+  assert_eq(STATUS_TODO, story.status);
+  assert_eq(ESTIMATE_POINTS, story.estimate_type);
+  assert_eq(1, story.estimate.points);
+  assert_eq(0 == strcmp(story.slogan, "This is the slogan 1"));
+
+  story_init(1, &story, "* TODO 01-03 This is the slogan 2");
+
+  assert_eq(STATUS_TODO, story.status);
+  assert_eq(ESTIMATE_RANGE, story.estimate_type);
+  assert_eq(1, story.estimate.range.min_points);
   assert_eq(3, story.estimate.range.max_points);
+  assert_eq(0 == strcmp(story.slogan, "This is the slogan 2"));
 }

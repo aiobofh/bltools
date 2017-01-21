@@ -1,4 +1,6 @@
+
 #include <assert.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "story.h"
@@ -270,16 +272,27 @@ void story_init(int story, story_t* s, const char* str) {
   assert(1 == story && "is_story() must have returned 1 before calling");
 
   /* Extract the status */
-  s->status = get_status(story, str);
+  s->status = call(get_status(story, str));
+
+  const int estimate = call(has_estimate(story, str));
+  const int estimate_range = call(has_estimate_range(estimate, str));
+  const int slogan = call(has_slogan(1, estimate, estimate_range, str));
 
   /* Extract the estimate */
-  if (1 == has_estimate_range(1, str)) {
+  if (0 != estimate_range) {
     s->estimate_type = ESTIMATE_RANGE;
-    s->estimate.range.min_points = get_estimate(1, str);
-    s->estimate.range.max_points = get_max_estimate(1, str);
+    s->estimate.range.min_points = call(get_estimate(estimate, str));
+    s->estimate.range.max_points = call(get_max_estimate(estimate_range, str));
   }
   else {
     s->estimate_type = ESTIMATE_POINTS;
-    s->estimate.points = get_estimate(1, str);
+    s->estimate.points = call(get_estimate(estimate, str));
+  }
+
+  if (0 != slogan) {
+    const int length = call(get_slogan_length(slogan, estimate_range, str));
+    s->slogan = call(malloc(length));
+    assert(NULL != s->slogan && "Out of memory");
+    call(get_slogan(s->slogan, estimate_range, length, str));
   }
 }
