@@ -275,12 +275,13 @@ void sum_min_estimates(int *sum, story_t *story) {
   *sum += story->estimate.points;
 }
 
-void sum_max_estimates(int *sum, story_t *story){
-  if(story->estimate_type==ESTIMATE_RANGE)
+void sum_max_estimates(int *sum, story_t *story) {
+  if (ESTIMATE_RANGE == story->estimate_type) {
     *sum += story->estimate.range.max_points;
-  else
+  }
+  else {
     *sum += story->estimate.points;
-  
+  }
 }
 
 void story_init(int story, story_t* s, const char* str) {
