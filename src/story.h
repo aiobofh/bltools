@@ -37,5 +37,6 @@ typedef struct {
 int is_story(const char* str);
 void sum_min_estimates(int *sum, story_t *story);
 void sum_max_estimates(int *sum, story_t *story);
+void story_init(int story, story_t* s, const char* str);
 
 #endif

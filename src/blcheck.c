@@ -7,59 +7,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "story.h"
+#include "backlog.h"
 
-int quiet = 0;
-
-int blcheck(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
+  /* TODO: Make nicer argument handling */
   if (2 != argc) {
-    if (0 == quiet) {
-      fprintf(stderr, "ERROR: One argument requred\n");
-    }
+    fprintf(stderr, "ERROR: One argument requred\n");
     return 1;
   }
 
-  /* TODO: Make nicer argument handling */
-
-  char *filename = argv[1];
-  FILE* fd = call(fopen(filename, "r"));
-
-  if (NULL == fd) {
-    if (0 == quiet) {
-      fprintf(stderr, "ERROR: Unable to open file %s\n", filename);
-    }
-    return 2;
-  }
-
-  int row = 0;
-  int retval = 0;
-
-  while (0 == call(feof(fd))) {
-    char buf[2048];
-    if (NULL == call(fgets(buf, sizeof(buf), fd))) {
-      if (call(feof(fd))) {
-        break;
-      }
-      if (0 == quiet) {
-        fprintf(stderr, "ERROR: Unable to read file %s:%d\n", filename, row);
-      }
-      retval = 3;
-      break;
-    }
-    else if (('*' == buf[0]) && (0 == call(is_story(buf)))) {
-      if (0 == quiet) {
-        fprintf(stderr,
-                "ERROR: %s:%d: Expected a correctly formatted story:\n"
-                "%s", filename, row, buf);
-      }
-      retval = 4;
-    }
-    row++;
-  }
-  call(fclose(fd));
-  return retval;
-}
-
-int main(int argc, char* argv[]) {
-  return blcheck(argc, argv);
+  return call(backlog_read(argv[1], NULL));
 }

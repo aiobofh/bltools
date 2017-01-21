@@ -11,7 +11,7 @@ cutest:
 -include cutest/src/cutest.mk
 -include cutest/src/coverage.mk
 
-blcheck: blcheck.c story.c
+blcheck: blcheck.c story.c backlog.c
 	$(CC) -o $@ $^ -D"call(func)=func" -O2
 
 clean::
