@@ -59,13 +59,13 @@ int main(int argc, char* argv[]) {
     }
     else {
       fprintf(stderr, "ERROR: -t need either -x (max) or -n (min)\n");
-      return 1;
+      return 2;
     }
     filename = argv[3];
   }
   else {
     fprintf(stderr, "ERROR: Unknown option -%c\n", argv[1][1]);
-    return 1;
+    return 3;
   }
 
   assert(NULL != func);

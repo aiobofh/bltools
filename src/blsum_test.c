@@ -117,6 +117,28 @@ test(main_shall_return_1_if_argument_count_is_off) {
   assert_eq(1, retval);
 }
 
+test(main_shall_return_2_if_t_argument_is_not_followd_by_x_or_n) {
+  int retval;
+  char* argv[] = {"blsum", "-t", "bogus"};
+
+  mute_stderr();
+  retval = MAIN(3, argv);
+  unmute_stderr();
+
+  assert_eq(2, retval);
+}
+
+test(main_shall_return_3_if_first_option_is_unknown) {
+  int retval;
+  char* argv[] = {"blsum", "bogus", "bogus"};
+
+  mute_stderr();
+  retval = MAIN(3, argv);
+  unmute_stderr();
+
+  assert_eq(3, retval);
+}
+
 test(main_shall_call_backlog_read_with_correct_arguments_done) {
   char* argv[] = {"program_name_here", "-d", "foo.org"};
   const int make_sure_function_call_retval_is_returned = 12;
