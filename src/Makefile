@@ -11,10 +11,10 @@ cutest:
 -include cutest/src/cutest.mk
 -include cutest/src/coverage.mk
 
-blcheck: blcheck.c story.c backlog.c
+blcheck: blcheck.c date.c story.c backlog.c
 	$(CC) -o $@ $^ -D"call(func)=func" -O2
 
-blsum: blsum.c story.c backlog.c
+blsum: blsum.c date.c story.c backlog.c
 	$(CC) -o $@ $^ -D"call(func)=func" -O2
 
 clean::

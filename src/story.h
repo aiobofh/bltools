@@ -1,16 +1,12 @@
 #ifndef _STORY_H_
 #define _STORY_H_
 
+#include "date.h"
+
 typedef enum {
   STATUS_TODO,
   STATUS_DONE
 } status_t;
-
-typedef struct {
-  int year;
-  int month;
-  int day;
-} date_t;
 
 typedef enum {
   ESTIMATE_POINTS,

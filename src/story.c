@@ -238,36 +238,13 @@ static int count_tags(int tags, const char* str) {
 }
 
 static int is_date_formatted(const char* s) {
-  size_t pos;
+  size_t pos = 0;
 
-  /* Four digit year */
-  for (pos = 0; pos < 4; pos++) {
-    if (('0' > s[pos]) || ('9' < s[pos])) {
-      return 0;
-    }
-  }
-
-  if ('-' != s[4]) {
+  if (0 == call(is_date(s))) {
     return 0;
   }
 
-  /* Two digit month */
-  for (pos = 5; pos < 5 + 2; pos++) {
-    if (('0' > s[pos]) || ('9' < s[pos])) {
-      return 0;
-    }
-  }
-
-  if ('-' != s[7]) {
-    return 0;
-  }
-
-  /* Two digit day */
-  for (pos = 8; pos < 8 + 2; pos++) {
-    if (('0' > s[pos]) || ('9' < s[pos])) {
-      return 0;
-    }
-  }
+  pos += 10; /* strlen("yyyy-mm-dd"); */
 
   /* Later followed by a '>' */
   for (pos = 10; pos < strlen(s); pos++) {

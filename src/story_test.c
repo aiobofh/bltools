@@ -138,39 +138,24 @@ test(count_tags_shall_return_5_if_five_tags_are_specified) {
 /*
  * is_date_formatted()
  */
-test(is_date_formatted_shall_return_0_if_string_does_not_start_with_year) {
-  assert_eq(0, is_date_formatted("jfdsalkfdasklfjsdalkfj"));
-}
-
-test(is_date_formatted_shall_return_0_if_string_missing_first_separator) {
-  assert_eq(0, is_date_formatted("123412-12>"));
-}
-
-test(is_date_formatted_shall_return_0_if_string_does_not_have_month) {
-  assert_eq(0, is_date_formatted("1234-ab-12>"));
-}
-
-test(is_date_formatted_shall_return_0_if_string_missing_second_separator) {
-  assert_eq(0, is_date_formatted("1234-1212>"));
-}
-
-test(is_date_formatted_shall_return_0_if_string_does_not_have_day) {
-  assert_eq(0, is_date_formatted("1234-12-ab>"));
-}
-
-test(is_date_formatted_shall_return_0_if_string_does_not_end_with_gt) {
-  assert_eq(0, is_date_formatted("1234-1212"));
+test(is_date_formatted_shall_call_is_date_with_correct_argument) {
+  assert_eq(0, is_date_formatted((char*)1234));
+  assert_eq(1, cutest_mock.is_date.call_count);
+  assert_eq((char*)1234, cutest_mock.is_date.args.arg0);
 }
 
 test(is_date_formatted_shall_return_0_if_date_suddanly_contains_lt) {
+  cutest_mock.is_date.retval = 1;
   assert_eq(0, is_date_formatted("1234-12-12<"));
 }
 
 test(is_date_formatted_shall_return_0_if_does_not_end_with_gt_gt) {
+  cutest_mock.is_date.retval = 1;
   assert_eq(0, is_date_formatted("1234-12-12"));
 }
 
 test(is_date_formatted_shall_return_1_if_string_start_with_date_and_gt) {
+  cutest_mock.is_date.retval = 1;
   assert_eq(1, is_date_formatted("1234-12-12>"));
 }
 
@@ -794,6 +779,7 @@ test(story_should_init_shall_initialize_stories_correctly) {
   cutest_mock.get_slogan_length.func = get_slogan_length;
   cutest_mock.get_slogan.func = get_slogan;
 
+  cutest_mock.is_date.retval = 1;
   cutest_mock.is_date_formatted.func = is_date_formatted;
   cutest_mock.has_interval.func = has_interval;
   cutest_mock.has_date.func = has_date;
