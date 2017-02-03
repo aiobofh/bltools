@@ -136,6 +136,121 @@ test(count_tags_shall_return_5_if_five_tags_are_specified) {
 }
 
 /*
+ * is_date_formatted()
+ */
+test(is_date_formatted_shall_return_0_if_string_does_not_start_with_year) {
+  assert_eq(0, is_date_formatted("jfdsalkfdasklfjsdalkfj"));
+}
+
+test(is_date_formatted_shall_return_0_if_string_missing_first_separator) {
+  assert_eq(0, is_date_formatted("123412-12>"));
+}
+
+test(is_date_formatted_shall_return_0_if_string_does_not_have_month) {
+  assert_eq(0, is_date_formatted("1234-ab-12>"));
+}
+
+test(is_date_formatted_shall_return_0_if_string_missing_second_separator) {
+  assert_eq(0, is_date_formatted("1234-1212>"));
+}
+
+test(is_date_formatted_shall_return_0_if_string_does_not_have_day) {
+  assert_eq(0, is_date_formatted("1234-12-ab>"));
+}
+
+test(is_date_formatted_shall_return_0_if_string_does_not_end_with_gt) {
+  assert_eq(0, is_date_formatted("1234-1212"));
+}
+
+test(is_date_formatted_shall_return_0_if_date_suddanly_contains_lt) {
+  assert_eq(0, is_date_formatted("1234-12-12<"));
+}
+
+test(is_date_formatted_shall_return_0_if_does_not_end_with_gt_gt) {
+  assert_eq(0, is_date_formatted("1234-12-12"));
+}
+
+test(is_date_formatted_shall_return_1_if_string_start_with_date_and_gt) {
+  assert_eq(1, is_date_formatted("1234-12-12>"));
+}
+
+/*
+ * has_date()
+ */
+test(has_date_shall_return_0_if_needle_is_not_found_in_haystack) {
+  assert_eq(0, has_date("haystack", "needle"));
+}
+
+test(has_date_call_is_date_formatted_correctly_if_needle_is_found) {
+  const char* str = "haystack needle haystack";
+  assert_eq(0, has_date(str, "needle"));
+  assert_eq(1, cutest_mock.is_date_formatted.call_count);
+  assert_eq((char*)(str + 9 + strlen("needle")),
+            cutest_mock.is_date_formatted.args.arg0);
+}
+
+/*
+ * has_scheduled();
+ */
+test(has_scheduled_shall_call_has_date_correclty_and_forward_retval) {
+  const char* str = "A silly string";
+
+  cutest_mock.has_date.retval = 1234;
+
+  assert_eq(1234, has_scheduled(str));
+  assert_eq(str, cutest_mock.has_date.args.arg0);
+  assert_eq(0 == strcmp("SCHEDULED: <", cutest_mock.has_date.args.arg1));
+}
+
+/*
+ * has_deadline();
+ */
+test(has_deadline_shall_call_has_date_correclty_and_forward_retval) {
+  const char* str = "A silly string";
+
+  cutest_mock.has_date.retval = 1234;
+
+  assert_eq(1234, has_deadline(str));
+  assert_eq(str, cutest_mock.has_date.args.arg0);
+  assert_eq(0 == strcmp("DEADLINE: <", cutest_mock.has_date.args.arg1));
+}
+
+/*
+ * has_interval()
+ */
+test(has_interval_shall_return_0_if_no_row_is_provided) {
+  assert_eq(0, has_interval(1, NULL));
+}
+
+test(has_interval_shall_return_0_if_no_story_is_provided) {
+  assert_eq(0, has_interval(0, (char*)5432));
+}
+
+test(has_interval_shall_call_has_scheduled_correctly) {
+  assert_eq(0, has_interval(1, (char*)5432));
+  assert_eq(1, cutest_mock.has_scheduled.call_count);
+  assert_eq((char*)5432, cutest_mock.has_scheduled.args.arg0);
+}
+
+test(has_interval_shall_call_has_deadline_correctly) {
+  assert_eq(0, has_interval(1, (char*)5432));
+  assert_eq(1, cutest_mock.has_deadline.call_count);
+  assert_eq((char*)5432, cutest_mock.has_deadline.args.arg0);
+}
+
+test(has_interval_shall_return_0_if_no_scheduled_but_deadline) {
+  cutest_mock.has_scheduled.retval = 0;
+  cutest_mock.has_deadline.retval = 1;
+  assert_eq(0, has_interval(1, (char*)5432));
+}
+
+test(has_interval_shall_return_0_if_no_deadline_but_scheduled) {
+  cutest_mock.has_scheduled.retval = 1;
+  cutest_mock.has_deadline.retval = 0;
+  assert_eq(0, has_interval(1, (char*)5432));
+}
+
+/*
  * is_story()
  */
 test(is_story_should_rely_on_helpers_since_they_are_already_tested) {
@@ -331,12 +446,115 @@ test(get_slogan_shall_copy_the_slogan_from_a_story_to_dest) {
 }
 
 /*
+ * get_year()
+ */
+test(get_year_shall_return_1234_if_needle_is_found_in_haystack) {
+  assert_eq(1234, get_year("foo: <1234", "foo: <"));
+}
+
+/*
+ * get_month()
+ */
+test(get_month_shall_return_56_if_needle_is_found_in_haystack) {
+  assert_eq(56, get_month("foo: <1234-56", "foo: <"));
+}
+
+/*
+ * get_day()
+ */
+test(get_month_shall_return_78_if_needle_is_found_in_haystack) {
+  assert_eq(78, get_day("foo: <1234-56-78", "foo: <"));
+}
+
+/*
+ * get_scheduled_year()
+ */
+test(get_scheduled_year_shall_call_get_year_correctly_and_forward_retval) {
+  cutest_mock.get_year.retval = 1234;
+  assert_eq(1234, get_scheduled_year("hobbla hobbla"));
+  assert_eq(1, cutest_mock.get_year.call_count);
+}
+
+/*
+ * get_scheduled_month()
+ */
+test(get_scheduled_month_shall_call_get_month_correctly_and_forward_retval) {
+  cutest_mock.get_month.retval = 56;
+  assert_eq(56, get_scheduled_month("hobbla hobbla"));
+  assert_eq(1, cutest_mock.get_month.call_count);
+}
+
+/*
+ * get_scheduled_day()
+ */
+test(get_scheduled_day_shall_call_get_day_correctly_and_forward_retval) {
+  cutest_mock.get_day.retval = 78;
+  assert_eq(78, get_scheduled_day("hobbla hobbla"));
+  assert_eq(1, cutest_mock.get_day.call_count);
+}
+
+/*
+ * get_deadline_year()
+ */
+test(get_deadline_year_shall_call_get_year_correctly_and_forward_retval) {
+  cutest_mock.get_year.retval = 1234;
+  assert_eq(1234, get_deadline_year("hobbla hobbla"));
+  assert_eq(1, cutest_mock.get_year.call_count);
+}
+
+/*
+ * get_deadline_month()
+ */
+test(get_deadline_month_shall_call_get_month_correctly_and_forward_retval) {
+  cutest_mock.get_month.retval = 56;
+  assert_eq(56, get_deadline_month("hobbla hobbla"));
+  assert_eq(1, cutest_mock.get_month.call_count);
+}
+
+/*
+ * get_deadline_day()
+ */
+test(get_deadline_day_shall_call_get_day_correctly_and_forward_retval) {
+  cutest_mock.get_day.retval = 78;
+  assert_eq(78, get_deadline_day("hobbla hobbla"));
+  assert_eq(1, cutest_mock.get_day.call_count);
+}
+
+/*
+ * get_interval()
+ */
+#define GET_INTERVAL_FIXTURE                                            \
+  date_t start;                                                         \
+  date_t end;                                                           \
+  const char* str = "SCHEDULED: <1234-56-78> DEADLINE: <8765-43-21>";   \
+                                                                        \
+  get_interval(&start, &end, str)
+
+test(get_interval_shall_call_get_scheduled_year_correctly) {
+  GET_INTERVAL_FIXTURE;
+  assert_eq(1, cutest_mock.get_scheduled_year.call_count);
+  assert_eq(str, cutest_mock.get_scheduled_year.args.arg0);
+}
+
+test(get_interval_shall_call_get_scheduled_month_correctly) {
+  GET_INTERVAL_FIXTURE;
+  assert_eq(1, cutest_mock.get_scheduled_month.call_count);
+  assert_eq(str, cutest_mock.get_scheduled_month.args.arg0);
+}
+
+test(get_interval_shall_call_get_scheduled_day_correctly) {
+  GET_INTERVAL_FIXTURE;
+  assert_eq(1, cutest_mock.get_scheduled_day.call_count);
+  assert_eq(str, cutest_mock.get_scheduled_day.args.arg0);
+}
+
+/*
  * story_init()
  */
 test(story_init_shall_call_get_status_with_correct_arguments) {
   story_t story;
 
-  story_init(1234, &story, (char*)5678);
+  story_init(1234, &story, (char*)5678, (char*)8765);
 
   assert_eq(1, cutest_mock.get_status.call_count);
   assert_eq(1234, cutest_mock.get_status.args.arg0);
@@ -348,7 +566,7 @@ test(story_init_shall_initialize_a_DONE_story_if_it_is_DONE) {
 
   cutest_mock.get_status.retval = STATUS_DONE;
 
-  story_init(1234, &story, NULL);
+  story_init(1234, &story, NULL, NULL);
 
   assert_eq(STATUS_DONE, story.status);
 }
@@ -358,30 +576,30 @@ test(story_init_shall_initialize_a_TODO_story_if_it_is_TODO) {
 
   cutest_mock.get_status.retval = STATUS_TODO;
 
-  story_init(1234, &story, NULL);
+  story_init(1234, &story, NULL, NULL);
 
   assert_eq(STATUS_TODO, story.status);
 }
 
-test(story_init_shall_has_estimate_with_correct_arguments) {
+test(story_init_shall_call_has_estimate_with_correct_arguments) {
   story_t story;
 
-  story_init(1234, &story, (char*)5678);
+  story_init(1234, &story, (char*)5678, (char*)8765);
 
   assert_eq(1, cutest_mock.has_estimate.call_count);
   assert_eq(1234, cutest_mock.has_estimate.args.arg0);
   assert_eq((char*)5678, cutest_mock.has_estimate.args.arg1);
 }
 
-#define STORY_INIT_FIXTURE_HAS_ESTIMATE         \
-  story_t story;                                \
-  cutest_mock.has_estimate.retval = 8765;       \
-  story_init(1, &story, (char*)5678)
+#define STORY_INIT_FIXTURE_HAS_ESTIMATE                 \
+  story_t story;                                        \
+  cutest_mock.has_estimate.retval = 1234;               \
+  story_init(1, &story, (char*)5678, (char*)8765)
 
-test(story_init_shall_has_estimate_range_with_correct_arguments) {
+test(story_init_shall_call_has_estimate_range_with_correct_arguments) {
   STORY_INIT_FIXTURE_HAS_ESTIMATE;
   assert_eq(1, cutest_mock.has_estimate_range.call_count);
-  assert_eq(8765, cutest_mock.has_estimate_range.args.arg0);
+  assert_eq(1234, cutest_mock.has_estimate_range.args.arg0);
   assert_eq((char*)5678, cutest_mock.has_estimate_range.args.arg1);
 }
 
@@ -396,19 +614,26 @@ test(story_init_shall_initialize_a_story_with_an_estimate_if_no_range) {
   assert_eq(some_estimate, story.estimate.points);
 }
 
-#define STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE   \
-  story_t story;                                \
-  cutest_mock.has_estimate.retval = 8765;       \
-  cutest_mock.has_estimate_range.retval = 4321; \
-  story_init(1, &story, (char*)5678);
+#define STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE           \
+  story_t story;                                        \
+  cutest_mock.has_estimate.retval = 1234;               \
+  cutest_mock.has_estimate_range.retval = 4321;         \
+  story_init(1, &story, (char*)5678, (char*)8765);
 
 test(story_init_shall_call_has_slogan_with_correct_arguments) {
   STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE;
   assert_eq(1, cutest_mock.has_slogan.call_count);
   assert_eq(1, cutest_mock.has_slogan.args.arg0);
-  assert_eq(8765, cutest_mock.has_slogan.args.arg1);
+  assert_eq(1234, cutest_mock.has_slogan.args.arg1);
   assert_eq(4321, cutest_mock.has_slogan.args.arg2);
   assert_eq((char*)5678, cutest_mock.has_slogan.args.arg3);
+}
+
+test(story_init_shall_call_has_interval_with_correct_arguments) {
+  STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE;
+  assert_eq(1, cutest_mock.has_interval.call_count);
+  assert_eq(1, cutest_mock.has_interval.args.arg0);
+  assert_eq((char*)8765, cutest_mock.has_interval.args.arg1);
 }
 
 test(story_init_shall_initialize_a_story_with_an_estimate_range_if_range) {
@@ -427,14 +652,14 @@ test(story_init_shall_initialize_a_story_with_an_estimate_range_if_range) {
 
 #define STORY_INIT_FIXTURE_HAS_NO_ESTIMATE_RANGE        \
   story_t story;                                        \
-  cutest_mock.has_estimate.retval = 8765;               \
+  cutest_mock.has_estimate.retval = 1234;               \
   cutest_mock.has_estimate_range.retval = 0;            \
-  story_init(1, &story, (char*)5678);
+  story_init(1, &story, (char*)5678, (char*)8765);
 
 test(story_init_shall_call_get_estimate_correct_if_no_range_is_specified) {
   STORY_INIT_FIXTURE_HAS_NO_ESTIMATE_RANGE;
   assert_eq(1, cutest_mock.get_estimate.call_count);
-  assert_eq(8765, cutest_mock.get_estimate.args.arg0);
+  assert_eq(1234, cutest_mock.get_estimate.args.arg0);
   assert_eq((char*)5678, cutest_mock.get_estimate.args.arg1);
 }
 
@@ -446,7 +671,7 @@ test(story_init_shall_not_call_get_max_estimate_if_no_range_is_specified) {
 test(story_init_shall_call_get_estimate_correct_if_range_is_specified) {
   STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE;
   assert_eq(1, cutest_mock.get_estimate.call_count);
-  assert_eq(8765, cutest_mock.get_estimate.args.arg0);
+  assert_eq(1234, cutest_mock.get_estimate.args.arg0);
   assert_eq((char*)5678, cutest_mock.get_estimate.args.arg1);
 }
 
@@ -465,11 +690,11 @@ test(story_init_shall_call_get_max_estimate_correctly_if_range_is_specified) {
 
 test(story_init_shall_call_get_slogan_length_correctly) {
   STORY_INIT_FIXTURE_HAS_ESTIMATE_RANGE_AND_SLOGAN;
-  story_init(1, &story, (char*)5678);
+  story_init(1, &story, (char*)8888, (char*)9999);
   assert_eq(1, cutest_mock.get_slogan_length.call_count);
   assert_eq(1234, cutest_mock.get_slogan_length.args.arg0);
   assert_eq(4321, cutest_mock.get_slogan_length.args.arg1);
-  assert_eq((char*)5678, cutest_mock.get_slogan_length.args.arg2);
+  assert_eq((char*)8888, cutest_mock.get_slogan_length.args.arg2);
 }
 
 test(story_init_shall_malloc_the_correct_number_of_bytes_for_slogan) {
@@ -478,7 +703,7 @@ test(story_init_shall_malloc_the_correct_number_of_bytes_for_slogan) {
   cutest_mock.get_slogan_length.retval = 13;
   cutest_mock.malloc.retval = (void*)42; /* Avaid the out-of-memory assert*/
 
-  story_init(1, &story, (char*)5678);
+  story_init(1, &story, (char*)8888, (char*)9999);
 
   assert_eq(1, cutest_mock.malloc.call_count);
   assert_eq(13, cutest_mock.malloc.args.arg0);
@@ -490,12 +715,12 @@ test(story_init_shall_call_get_slogan_with_correct_arguments) {
   cutest_mock.get_slogan_length.retval = 13;
   cutest_mock.malloc.retval = (void*)42;
 
-  story_init(1, &story, (char*)5678);
+  story_init(1, &story, (char*)8888, (char*)9999);
 
   assert_eq((char*)42, cutest_mock.get_slogan.args.arg0);
   assert_eq(4321, cutest_mock.get_slogan.args.arg1);
   assert_eq(13, cutest_mock.get_slogan.args.arg2);
-  assert_eq((char*)5678, cutest_mock.get_slogan.args.arg3);
+  assert_eq((char*)8888, cutest_mock.get_slogan.args.arg3);
 }
 
 test(story_init_shall_initialize_a_story_with_a_slogan_when_there_is_one) {
@@ -504,11 +729,53 @@ test(story_init_shall_initialize_a_story_with_a_slogan_when_there_is_one) {
   cutest_mock.get_slogan_length.retval = 13;
   cutest_mock.malloc.retval = (void*)42;
 
-  story_init(1, &story, (char*)5678);
+  story_init(1, &story, (char*)8888, (char*)9999);
 
   /* No need to test anythong else than that malloc set the pointer where
    * the slogan is supposed to be copied to. */
   assert_eq((char*)42, story.slogan);
+}
+
+#define STORY_INIT_FIXTURE_HAS_INTERVAL                       \
+  story_t story;                                              \
+  cutest_mock.get_status.retval = STATUS_DONE;                \
+  cutest_mock.has_interval.retval = 4321;
+
+test(story_init_shall_call_get_interval_with_correct_arguments) {
+  STORY_INIT_FIXTURE_HAS_INTERVAL;
+
+  story_init(1, &story, (char*)8888, (char*)9999);
+
+  assert_eq(&story.started, cutest_mock.get_interval.args.arg0);
+  assert_eq(&story.ended, cutest_mock.get_interval.args.arg1);
+  assert_eq((char*)9999, cutest_mock.get_interval.args.arg2);
+}
+
+static void get_interval_stub(date_t* started, date_t* ended,
+                              const char* str) {
+  str = str;
+  started->year = 1234;
+  started->month = 56;
+  started->day = 78;
+  ended->year = 8765;
+  ended->month = 43;
+  ended->day = 21;
+}
+
+test(story_init_shall_initialize_a_story_with_an_interval_when_there_is_one) {
+  STORY_INIT_FIXTURE_HAS_INTERVAL;
+
+  cutest_mock.get_interval.func = get_interval_stub;
+
+  story_init(1, &story, (char*)8888, (char*)9999);
+
+  assert_eq(1234, story.started.year);
+  assert_eq(56, story.started.month);
+  assert_eq(78, story.started.day);
+
+  assert_eq(8765, story.ended.year);
+  assert_eq(43, story.ended.month);
+  assert_eq(21, story.ended.day);
 }
 
 /* TODO: Switch to module_test() macro when supported in cutest. */
@@ -527,22 +794,49 @@ test(story_should_init_shall_initialize_stories_correctly) {
   cutest_mock.get_slogan_length.func = get_slogan_length;
   cutest_mock.get_slogan.func = get_slogan;
 
+  cutest_mock.is_date_formatted.func = is_date_formatted;
+  cutest_mock.has_interval.func = has_interval;
+  cutest_mock.has_date.func = has_date;
+  cutest_mock.has_scheduled.func = has_scheduled;
+  cutest_mock.has_deadline.func = has_deadline;
+  cutest_mock.get_interval.func = get_interval;
+  cutest_mock.get_year.func = get_year;
+  cutest_mock.get_month.func = get_month;
+  cutest_mock.get_day.func = get_day;
+  cutest_mock.get_scheduled_year.func = get_scheduled_year;
+  cutest_mock.get_scheduled_month.func = get_scheduled_month;
+  cutest_mock.get_scheduled_day.func = get_scheduled_day;
+  cutest_mock.get_deadline_year.func = get_deadline_year;
+  cutest_mock.get_deadline_month.func = get_deadline_month;
+  cutest_mock.get_deadline_day.func = get_deadline_day;
+
   /* But still mock the malloc to return a known data storage address */
   cutest_mock.malloc.retval = &dest; /* No free(), hence no memoru leek */
 
   /* Top-level kick-the-tires test of is_story() */
-  story_init(1, &story, "* TODO 01 This is the slogan 1");
+  story_init(1, &story, "* TODO 01 This is the slogan 1", NULL);
 
   assert_eq(STATUS_TODO, story.status);
   assert_eq(ESTIMATE_POINTS, story.estimate_type);
   assert_eq(1, story.estimate.points);
   assert_eq(0 == strcmp(story.slogan, "This is the slogan 1"));
 
-  story_init(1, &story, "* TODO 01-03 This is the slogan 2");
+  story_init(1, &story, "* TODO 01-03 This is the slogan 2", NULL);
 
   assert_eq(STATUS_TODO, story.status);
   assert_eq(ESTIMATE_RANGE, story.estimate_type);
   assert_eq(1, story.estimate.range.min_points);
   assert_eq(3, story.estimate.range.max_points);
   assert_eq(0 == strcmp(story.slogan, "This is the slogan 2"));
+
+  story_init(1, &story, "* DONE 02 This is the slogan 2",
+             "  SCHEDULED: <2016-01-02> DEADLINE: <2017-03-04>");
+
+  assert_eq(STATUS_DONE, story.status);
+  assert_eq(2016, story.started.year);
+  assert_eq(01, story.started.month);
+  assert_eq(02, story.started.day);
+  assert_eq(2017, story.ended.year);
+  assert_eq(03, story.ended.month);
+  assert_eq(04, story.ended.day);
 }

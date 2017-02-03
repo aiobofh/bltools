@@ -1,3 +1,4 @@
+#include <stdio.h>
 
 #include <assert.h>
 #include <stdlib.h>
@@ -236,6 +237,95 @@ static int count_tags(int tags, const char* str) {
   return cnt;
 }
 
+static int is_date_formatted(const char* s) {
+  size_t pos;
+
+  /* Four digit year */
+  for (pos = 0; pos < 4; pos++) {
+    if (('0' > s[pos]) || ('9' < s[pos])) {
+      return 0;
+    }
+  }
+
+  if ('-' != s[4]) {
+    return 0;
+  }
+
+  /* Two digit month */
+  for (pos = 5; pos < 5 + 2; pos++) {
+    if (('0' > s[pos]) || ('9' < s[pos])) {
+      return 0;
+    }
+  }
+
+  if ('-' != s[7]) {
+    return 0;
+  }
+
+  /* Two digit day */
+  for (pos = 8; pos < 8 + 2; pos++) {
+    if (('0' > s[pos]) || ('9' < s[pos])) {
+      return 0;
+    }
+  }
+
+  /* Later followed by a '>' */
+  for (pos = 10; pos < strlen(s); pos++) {
+    if (s[pos] == '<') {
+      return 0;
+    }
+    if (s[pos] == '>') {
+      break;
+    }
+  }
+
+  if (s[pos] != '>') {
+    return 0;
+  }
+
+  return 1;
+}
+
+static int has_date(const char* haystack, const char* needle) {
+  char* s = strstr(haystack, needle);
+
+  if (NULL == s) {
+    return 0;
+  }
+
+  s += strlen(needle);
+
+  return call(is_date_formatted(s));
+}
+
+static int has_scheduled(const char* str) {
+  return call(has_date(str, "SCHEDULED: <"));
+}
+
+static int has_deadline(const char* str) {
+  return call(has_date(str, "DEADLINE: <"));
+}
+
+static int has_interval(int story, const char* str) {
+
+  if (0 == story) {
+    return 0;
+  }
+
+  if (NULL == str) {
+    return 0;
+  }
+
+  const int scheduled = call(has_scheduled(str));
+  const int deadline = call(has_deadline(str));
+
+  if ((0 == scheduled) || (0 == deadline)) {
+    return 0;
+  }
+
+  return 1;
+}
+
 int is_story(const char* str) {
   if (0 == call(has_orgmode_todo(str))) {
     return 0;
@@ -284,31 +374,100 @@ void sum_max_estimates(int *sum, story_t *story) {
   }
 }
 
-void story_init(int story, story_t* s, const char* str) {
+static int get_year(const char* haystack, const char* needle) {
+  char* s = strstr(haystack, needle);
+
+  s += strlen(needle);
+
+  return (((s[0] - '0') * 1000) +
+          ((s[1] - '0') * 100) +
+          ((s[2] - '0') * 10) +
+          ((s[3] - '0')));;
+}
+
+static int get_month(const char* haystack, const char* needle) {
+  char* s = strstr(haystack, needle);
+
+  s += strlen(needle) + 4 + 1;
+
+  return ((s[0] - '0') * 10 + (s[1] - '0'));
+}
+
+static int get_day(const char* haystack, const char* needle) {
+  char* s = strstr(haystack, needle);
+
+  s += strlen(needle) + 4 + 1 + 2 +1;
+
+  return ((s[0] - '0') * 10 + (s[1] - '0'));
+}
+
+static int get_scheduled_year(const char* str) {
+  return call(get_year(str, "SCHEDULED: <"));
+}
+
+static int get_scheduled_month(const char* str) {
+  return call(get_month(str, "SCHEDULED: <"));
+}
+
+static int get_scheduled_day(const char* str) {
+  return call(get_day(str, "SCHEDULED: <"));
+}
+
+static int get_deadline_year(const char* str) {
+  return call(get_year(str, "DEADLINE: <"));
+}
+
+static int get_deadline_month(const char* str) {
+  return call(get_month(str, "DEADLINE: <"));
+}
+
+static int get_deadline_day(const char* str) {
+  return call(get_day(str, "DEADLINE: <"));
+}
+
+static void get_interval(date_t* started, date_t* ended, const char* str) {
+  started->year = call(get_scheduled_year(str));;
+  started->month = call(get_scheduled_month(str));;
+  started->day = call(get_scheduled_day(str));;
+  ended->year = call(get_deadline_year(str));
+  ended->month = call(get_deadline_month(str));
+  ended->day = call(get_deadline_day(str));
+}
+
+void story_init(int story, story_t* s, const char* str1, const char* str2) {
   assert(1 == story && "is_story() must have returned 1 before calling");
 
   /* Extract the status */
-  s->status = call(get_status(story, str));
+  s->status = call(get_status(story, str1));
 
-  const int estimate = call(has_estimate(story, str));
-  const int estimate_range = call(has_estimate_range(estimate, str));
-  const int slogan = call(has_slogan(1, estimate, estimate_range, str));
+  const int estimate = call(has_estimate(story, str1));
+  const int estimate_range = call(has_estimate_range(estimate, str1));
+  const int slogan = call(has_slogan(1, estimate, estimate_range, str1));
+  const int interval = call(has_interval(story, str2));
 
   /* Extract the estimate */
   if (0 != estimate_range) {
     s->estimate_type = ESTIMATE_RANGE;
-    s->estimate.range.min_points = call(get_estimate(estimate, str));
-    s->estimate.range.max_points = call(get_max_estimate(estimate_range, str));
+    s->estimate.range.min_points = call(get_estimate(estimate, str1));
+    s->estimate.range.max_points = call(get_max_estimate(estimate_range,
+                                                         str1));
   }
   else {
     s->estimate_type = ESTIMATE_POINTS;
-    s->estimate.points = call(get_estimate(estimate, str));
+    s->estimate.points = call(get_estimate(estimate, str1));
   }
 
   if (0 != slogan) {
-    const int length = call(get_slogan_length(slogan, estimate_range, str));
+    const int length = call(get_slogan_length(slogan, estimate_range, str1));
     s->slogan = call(malloc(length));
     assert(NULL != s->slogan && "Out of memory");
-    call(get_slogan(s->slogan, estimate_range, length, str));
+    call(get_slogan(s->slogan, estimate_range, length, str1));
+  }
+
+  if ((STATUS_DONE == s->status) && (0 != interval)) {
+    call(get_interval(&s->started, &s->ended, str2));
+  }
+  else {
+    s->started.year = 0;
   }
 }
