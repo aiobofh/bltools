@@ -3,7 +3,10 @@ Q=@
 .SUFFIXES:
 
 all:
-	$(Q)${MAKE} -s cutest && ${MAKE} -s check && ${MAKE} -s blcheck
+	$(Q)${MAKE} -s cutest && \
+	${MAKE} -s check && \
+	${MAKE} -s blcheck && \
+	${MAKE} -s blsum
 
 cutest:
 	$(Q)git clone "https://github.com/aiobofh/cutest.git" -q
