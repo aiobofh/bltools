@@ -6,7 +6,12 @@
 typedef struct {
   date_t start;
   date_t end;
-  char* slogan;
+  int commitment;
+  char* id;
 } sprint_t;
+
+int is_sprint(const char* str);
+void sprint_init(sprint_t* sprint, const char* str);
+void sprint_cleanup(sprint_t* sprint);
 
 #endif

@@ -152,7 +152,10 @@ static int get_slogan_length(int slogan, int estimate_range, const char* str) {
 
   /* Reverse to the first non-space character */
   offset--;
-  while (' ' == str[offset]) {
+  while ((' ' == str[offset]) ||
+         ('\n' == str[offset]) ||
+         ('\r' == str[offset]) ||
+         ('\t' == str[offset])) {
     offset--;
     l--;
   }

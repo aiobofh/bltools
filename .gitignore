@@ -6,5 +6,7 @@ src/*junit_report.xml
 src/*_test_run.c
 src/blcheck
 src/blsum
+src/blsprints
+src/blburn
 src/*.gcno
 src/*.gcda

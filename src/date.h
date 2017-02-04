@@ -8,5 +8,8 @@ typedef struct {
 } date_t;
 
 int is_date(const char* str);
+long date2long(date_t* date);
+void long2date(date_t* dst, long int date);
+void dateadd(date_t* date);
 
 #endif
