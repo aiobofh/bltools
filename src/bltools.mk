@@ -12,5 +12,5 @@ blsprints: bltools
 blburn: bltools
 	${Q}make -s -C bltools/src/ blburn; ln -s bltools/src/blburn
 
-cleam::
+clean::
 	${Q}rm -rf blcheck blsum blsprints blburn
