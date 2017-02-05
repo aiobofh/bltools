@@ -141,7 +141,6 @@ static int has_id(const char* str) {
     return 0;
   }
 
-  size_t i;
   const char *s = &str[id_pos];
 
   int len = 0;
