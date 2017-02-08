@@ -13,7 +13,7 @@ extern int fileno(FILE *stream);
 
 static void mute_stderr() {
   fflush(stderr);
-  fgetpos(stdout, &stderr_pos);
+  fgetpos(stderr, &stderr_pos);
   muted_stderr_fd = dup(fileno(stderr));
   freopen("/dev/null", "w", stderr);
 }
