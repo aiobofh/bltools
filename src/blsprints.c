@@ -12,9 +12,9 @@
 #define BUFSIZE 512
 
 static char* get_row(char* dst, FILE* fd, const char* sprintfile, int row) {
-  char* b = call(fgets(dst, BUFSIZE, fd));
+  char* b = fgets(dst, BUFSIZE, fd);
   if (NULL == b) {
-    if (call(feof(fd))) {
+    if (feof(fd)) {
       return NULL;
     }
     fprintf(stderr, "ERROR: Unable to read file %s:%d\n", sprintfile, row);
@@ -33,21 +33,21 @@ static void rtrim(char* buf) {
 
 static void print_sprint(const char* buf) {
   sprint_t sprint;
-  call(sprint_init(&sprint, buf));
-  call(fputs(sprint.id, stdout));
-  call(putc('\n', stdout));
-  call(sprint_cleanup(&sprint));
+  sprint_init(&sprint, buf);
+  fputs(sprint.id, stdout);
+  putc('\n', stdout);
+  sprint_cleanup(&sprint);
 }
 
 static int parse_and_print(FILE *fd, const char* sprintfile, int row) {
   char buf[BUFSIZE];
   char* b;
-  if (NULL == (b = call(get_row(buf, fd, sprintfile, row)))) {
+  if (NULL == (b = get_row(buf, fd, sprintfile, row))) {
     return 1;
   }
-  call(rtrim(buf));
-  if (0 != call(is_sprint(buf))) {
-    call(print_sprint(buf));
+  rtrim(buf);
+  if (0 != is_sprint(buf)) {
+    print_sprint(buf);
   }
   else {
     fprintf(stderr, "ERROR: No sprint %s:%d\n%s\n", sprintfile, row, buf);
@@ -58,19 +58,19 @@ static int parse_and_print(FILE *fd, const char* sprintfile, int row) {
 
 static int sprints_read(const char* sprintfile) {
   int row = 0;
-  FILE* fd = call(fopen(sprintfile, "r"));
+  FILE* fd = fopen(sprintfile, "r");
   if (NULL == fd) {
     fprintf(stderr, "ERROR: Could not open '%s' for reading\n", sprintfile);
     return 1;
   }
-  while (!call(feof(fd))) {
-    if (0 != call(parse_and_print(fd, sprintfile, row))) {
-      call(fclose(fd));
+  while (!feof(fd)) {
+    if (0 != parse_and_print(fd, sprintfile, row)) {
+      fclose(fd);
       return 2;
     }
     row++;
   }
-  call(fclose(fd));
+  fclose(fd);
   return 0;
 }
 
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
 
   const char* sprintfile = argv[1];
 
-  if (0 != call(sprints_read(sprintfile))) {
+  if (0 != sprints_read(sprintfile)) {
     return EXIT_FAILURE;
   }
 

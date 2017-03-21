@@ -17,6 +17,7 @@ test(has_orgmode_todo_shall_return_0_if_length_is_too_short) {
 }
 
 test(has_orgmode_todo_shall_return_0_if_row_dows_not_contain_todo_or_done) {
+  cutest_mock.strncmp.retval = -1;
   assert_eq(0, has_orgmode_todo("* Slogan"));
 }
 
@@ -43,22 +44,27 @@ test(has_estimate_shall_return_0_if_ogmode_todo_argument_is_false) {
 }
 
 test(has_estimate_shall_return_0_if_the_row_has_no_estimate) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(0, has_estimate(1, "* TODO Slogan "));
 }
 
 test(has_estimate_shall_return_0_if_there_is_no_space_or_dash_after) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(0, has_estimate(1, "* TODO 03Slogan "));
 }
 
 test(has_estimate_shall_return_0_if_the_row_is_too_short) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(0, has_estimate(1, "* TODO"));
 }
 
 test(has_estimate_shall_return_0_if_there_are_too_many_spaces) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(0, has_estimate(1, "* TODO 01  Slogan"));
 }
 
 test(has_estimate_shall_return_1_if_the_row_has_an_estimate) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(1, has_estimate(1, "* TODO 00 "));
   assert_eq(1, has_estimate(1, "* TODO 01 "));
   assert_eq(1, has_estimate(1, "* TODO 01-02"));
@@ -68,26 +74,32 @@ test(has_estimate_shall_return_1_if_the_row_has_an_estimate) {
  * has_estimate_range()
  */
 test(has_estimate_range_shall_return_0_if_has_estimate_bool_is_false) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(0, has_estimate_range(0, NULL));
 }
 
 test(has_estimate_range_shall_return_0_no_range_is_defined) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(0, has_estimate_range(1, "* TODO 00 Slogan"));
 }
 
 test(has_estimate_range_shall_return_0_range_is_broken) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(0, has_estimate_range(1, "* TODO 0001"));
 }
 
 test(has_estimate_range_shall_return_0_if_no_slogan_after_range) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(0, has_estimate_range(1, "* TODO 00-01"));
 }
 
 test(has_estimate_range_shall_return_0_if_too_many_spaces) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(0, has_estimate_range(1, "* TODO 00-01  "));
 }
 
 test(has_estimate_range_shall_return_1_if_range_is_defined) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(1, has_estimate_range(1, "* TODO 00-01 Slogan"));
 }
 
@@ -103,11 +115,13 @@ test(has_tags_shall_return_0_if_ogmode_todo_argument_is_false) {
 }
 
 test(has_tags_shall_return_0_if_line_does_not_end_with_a_tag) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(0, has_tags(1, "  Slogan"));
   assert_eq(0, has_tags(1, "  Slogan:"));
 }
 
 test(has_tags_shall_return_1_if_line_ends_with_a_tag) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(1, has_tags(1, "  :tag:"));
 }
 
@@ -124,14 +138,17 @@ test(count_tags_shall_return_0_if_tags_argument_is_false) {
 }
 
 test(count_tags_shall_return_1_if_one_tag_is_specified) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(1, count_tags(1, " :tag:"));
 }
 
 test(count_tags_shall_return_2_if_two_tags_are_specified) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(2, count_tags(1, " :tag1:tag2:"));
 }
 
 test(count_tags_shall_return_5_if_five_tags_are_specified) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(5, count_tags(1, " :tag1:tag2:tag3:tag4:tag5:"));
 }
 
@@ -139,22 +156,26 @@ test(count_tags_shall_return_5_if_five_tags_are_specified) {
  * is_date_formatted()
  */
 test(is_date_formatted_shall_call_is_date_with_correct_argument) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(0, is_date_formatted((char*)1234));
   assert_eq(1, cutest_mock.is_date.call_count);
   assert_eq((char*)1234, cutest_mock.is_date.args.arg0);
 }
 
 test(is_date_formatted_shall_return_0_if_date_suddanly_contains_lt) {
+  cutest_mock.strlen.func = strlen;
   cutest_mock.is_date.retval = 1;
   assert_eq(0, is_date_formatted("1234-12-12<"));
 }
 
 test(is_date_formatted_shall_return_0_if_does_not_end_with_gt_gt) {
+  cutest_mock.strlen.func = strlen;
   cutest_mock.is_date.retval = 1;
   assert_eq(0, is_date_formatted("1234-12-12"));
 }
 
 test(is_date_formatted_shall_return_1_if_string_start_with_date_and_gt) {
+  cutest_mock.strlen.func = strlen;
   cutest_mock.is_date.retval = 1;
   assert_eq(1, is_date_formatted("1234-12-12>"));
 }
@@ -163,10 +184,14 @@ test(is_date_formatted_shall_return_1_if_string_start_with_date_and_gt) {
  * has_date()
  */
 test(has_date_shall_return_0_if_needle_is_not_found_in_haystack) {
+  cutest_mock.strlen.func = strlen;
+  cutest_mock.strstr.func = strstr;
   assert_eq(0, has_date("haystack", "needle"));
 }
 
 test(has_date_call_is_date_formatted_correctly_if_needle_is_found) {
+  cutest_mock.strlen.func = strlen;
+  cutest_mock.strstr.func = strstr;
   const char* str = "haystack needle haystack";
   assert_eq(0, has_date(str, "needle"));
   assert_eq(1, cutest_mock.is_date_formatted.call_count);
@@ -278,6 +303,8 @@ test(is_story_should_return_0_if_has_orgmode_todo_ok_but_has_estimate_fails) {
 test(is_story_should_assess_stories_correctly) {
   /* Integrate helpers by not mocking them */
   /* TODO: Remove these when module_test() macro is done in cutest. */
+  cutest_mock.strlen.func = strlen;
+  cutest_mock.strstr.func = strstr;
   cutest_mock.has_orgmode_todo.func = has_orgmode_todo;
   cutest_mock.has_estimate.func = has_estimate;
 
@@ -305,10 +332,12 @@ test(is_story_should_assess_stories_correctly) {
  * get_status()
  */
 test(get_status_should_return_STATUS_TODO_if_the_row_is_a_TODO_row) {
+  cutest_mock.strncmp.func = strncmp;
   assert_eq(STATUS_TODO, get_status(1, "* TODO Slogan"));
 }
 
 test(get_status_should_return_STATUS_DONE_if_the_row_is_a_DONE_row) {
+  cutest_mock.strncmp.func = strncmp;
   assert_eq(STATUS_DONE, get_status(1, "* DONE Slogan"));
 }
 
@@ -409,6 +438,8 @@ test(get_slogan_length_shall_return_0_if_no_slogan) {
 }
 
 test(get_slogan_length_shall_return_the_length_of_the_slogan) {
+  cutest_mock.strlen.func = strlen;
+
   assert_eq(6, get_slogan_length(1, 0, "* TODO 01 Slogan    :tag:"));
   assert_eq(6, get_slogan_length(1, 1, "* TODO 01-03 Slogan     :tag:"));
   assert_eq(9, get_slogan_length(1, 0, "* TODO 01 Slogannnn"));
@@ -420,6 +451,7 @@ test(get_slogan_length_shall_return_the_length_of_the_slogan) {
  */
 test(get_slogan_shall_copy_the_slogan_from_a_story_to_dest) {
   char dest[7];
+  cutest_mock.memcpy.func = memcpy;
   get_slogan(dest, 0, 6, "* TODO 01 Slogan     :tag:");
   assert_eq(0 == strcmp(dest, "Slogan"));
 
@@ -434,6 +466,8 @@ test(get_slogan_shall_copy_the_slogan_from_a_story_to_dest) {
  * get_year()
  */
 test(get_year_shall_return_1234_if_needle_is_found_in_haystack) {
+  cutest_mock.strstr.func = strstr;
+  cutest_mock.strlen.func = strlen;
   assert_eq(1234, get_year("foo: <1234", "foo: <"));
 }
 
@@ -441,6 +475,8 @@ test(get_year_shall_return_1234_if_needle_is_found_in_haystack) {
  * get_month()
  */
 test(get_month_shall_return_56_if_needle_is_found_in_haystack) {
+  cutest_mock.strstr.func = strstr;
+  cutest_mock.strlen.func = strlen;
   assert_eq(56, get_month("foo: <1234-56", "foo: <"));
 }
 
@@ -448,6 +484,8 @@ test(get_month_shall_return_56_if_needle_is_found_in_haystack) {
  * get_day()
  */
 test(get_month_shall_return_78_if_needle_is_found_in_haystack) {
+  cutest_mock.strstr.func = strstr;
+  cutest_mock.strlen.func = strlen;
   assert_eq(78, get_day("foo: <1234-56-78", "foo: <"));
 }
 
@@ -770,6 +808,11 @@ test(story_should_init_shall_initialize_stories_correctly) {
 
   /* Integrate helpers by not mocking them */
   /* TODO: Remove these when module_test() macro is done in cutest. */
+  cutest_mock.strstr.func = strstr;
+  cutest_mock.strlen.func = strlen;
+  cutest_mock.strncmp.func = strncmp;
+  cutest_mock.memcpy.func = memcpy;
+
   cutest_mock.get_status.func = get_status;
   cutest_mock.has_estimate.func = has_estimate;
   cutest_mock.has_estimate_range.func = has_estimate_range;

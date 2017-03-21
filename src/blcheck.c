@@ -16,5 +16,5 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  return call(backlog_read(argv[1], NULL));
+  return backlog_read(argv[1], NULL);
 }

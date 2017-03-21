@@ -68,7 +68,6 @@ test(get_row_shall_return_null_on_file_read_eror) {
 
 test(get_row_shall_return_fgets_retval_on_success) {
   cutest_mock.fgets.retval = (char*)4321;
-
   assert_eq((char*)4321, get_row((char*)1234, (FILE*)5678, (char*)8765, 0));
 }
 
@@ -77,6 +76,9 @@ test(get_row_shall_return_fgets_retval_on_success) {
  */
 test(rtrim_shall_inplace_remove_whitespaces_at_end_of_the_string) {
   char str[32];
+
+  cutest_mock.strlen.func = strlen;
+  cutest_mock.__ctype_b_loc.func = __ctype_b_loc;
 
   strcpy(str, "This is a string \t\r\n\n\t ");
 
@@ -108,7 +110,7 @@ test(print_sprint_shall_call_puts_correctly) {
   print_sprint((char*)1234);
   assert_eq(cutest_mock.sprint_init.args.arg0->id,
             cutest_mock.fputs.args.arg0);
-  assert_eq('\n', cutest_mock.putc.args.arg0);
+  assert_eq('\n', cutest_mock._IO_putc.args.arg0);
 }
 
 test(print_sprint_shall_call_sprint_cleanup_correctly) {

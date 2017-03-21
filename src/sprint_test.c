@@ -69,6 +69,7 @@ test(has_dates_shall_return_1_if_the_sprint_has_both_start_and_end_dates) {
  * has_schedule()
  */
 test(has_schedule_shall_return_0_if_the_sprint_has_no_schedule_after_dates) {
+  cutest_mock.strlen.func = strlen;
   assert_eq(0, has_schedule("yyyy-mm-dd yyyy-mm-dd")); /* Too short */
   assert_eq(0, has_schedule("yyyy-mm-dd yyyy-mm-dd ")); /* Too short */
   assert_eq(0, has_schedule("yyyy-mm-dd yyyy-mm-dd MoTu")); /* Too short */
@@ -76,6 +77,8 @@ test(has_schedule_shall_return_0_if_the_sprint_has_no_schedule_after_dates) {
 }
 
 test(has_schedule_shall_return_1_if_the_sprint_has_schedule_after_dates) {
+  cutest_mock.strlen.func = strlen;
+  cutest_mock.is_weekday_short.func = is_weekday_short;
   assert_eq(1, has_schedule("yyyy-mm-dd yyyy-mm-dd MoTuWeThFr "));
   assert_eq(1, has_schedule("yyyy-mm-dd yyyy-mm-dd TuWeFr "));
   assert_eq(1, has_schedule("yyyy-mm-dd yyyy-mm-dd FrMoTuWe "));
@@ -85,6 +88,9 @@ test(has_schedule_shall_return_1_if_the_sprint_has_schedule_after_dates) {
  * has_commitment()
  */
 test(has_commitment_shall_return_0_if_no_commitment_is_found) {
+  cutest_mock.strlen.func = strlen;
+  cutest_mock.skip_schedule_length.func = skip_schedule_length;
+
   assert_eq(0, has_commitment("yyyy-mm-dd yyyy-mm-dd DdDd ")); /* Too short */
   assert_eq(0, has_commitment("yyyy-mm-dd yyyy-mm-dd DdDd")); /* Too short */
   assert_eq(0, has_commitment("yyyy-mm-dd yyyy-mm-dd Dd 13")); /* Too short */
@@ -92,6 +98,8 @@ test(has_commitment_shall_return_0_if_no_commitment_is_found) {
 }
 
 test(has_commitment_shall_return_1_if_commitment_is_found) {
+  cutest_mock.strlen.func = strlen;
+  cutest_mock.skip_schedule_length.func = skip_schedule_length;
   assert_eq(1, has_commitment("yyyy-mm-dd yyyy-mm-dd DdDdDdDd 13 "));
 }
 
@@ -104,15 +112,22 @@ test(has_id_shall_return_0_if_no_id_is_found) {
 }
 
 test(has_id_shall_return_0_if_id_contains_other_than_alpha_numerics) {
+  cutest_mock.strlen.func = strlen;
+  cutest_mock.skip_schedule_length.func = skip_schedule_length;
+
   assert_eq(0, has_id("yyyy-mm-dd yyyy-mm-dd Dd nn / b c d"));
   assert_eq(0, has_id("yyyy-mm-dd yyyy-mm-dd Dd nn 1?3 123"));
 }
 
 test(has_id_shall_return_1_if_id_is_found) {
+  cutest_mock.strlen.func = strlen;
+  cutest_mock.skip_schedule_length.func = skip_schedule_length;
   assert_eq(1, has_id("yyyy-mm-dd yyyy-mm-dd Dd nn Sprint-102_a"));
 }
 
 test(has_id_shall_return_1_if_id_is_found_in_front_of_a_title) {
+  cutest_mock.strlen.func = strlen;
+  cutest_mock.skip_schedule_length.func = skip_schedule_length;
   assert_eq(1, has_id("yyyy-mm-dd yyyy-mm-dd Dd nn Sprint-102_a Title A"));
 }
 
@@ -152,6 +167,8 @@ test(get_end_date_shall_convert_date_correclty) {
  * get_days_in_schedule()
  */
 test(get_days_in_chedule_shall_return_the_number_of_scheduled_days) {
+  cutest_mock.strlen.func = strlen;
+  cutest_mock.is_weekday_short.func = is_weekday_short;
   assert_eq(1, get_days_in_schedule("yyyy-mm-dd yyyy-mm-dd Mo "));
   assert_eq(5, get_days_in_schedule("yyyy-mm-dd yyyy-mm-dd MoTuWeThFr "));
   assert_eq(2, get_days_in_schedule("yyyy-mm-dd yyyy-mm-dd FrMo "));
@@ -206,6 +223,14 @@ test(get_schedule_shall_return_a_list_of_dates) {
   const int cnt = 7;
   date_t date[cnt];
   date_t start = {2017, 02, 28};
+
+  cutest_mock.strlen.func = strlen;
+  cutest_mock.date2tm.func = date2tm;
+  cutest_mock.mktime.func = mktime;
+  cutest_mock.gmtime.func = gmtime;
+  cutest_mock.get_wday.func = get_wday;
+  cutest_mock.is_weekday_short.func = is_weekday_short;
+
   get_schedule(&start, date, "yyyy-mm-dd yyyy-mm-dd TuWeThSaSuMoSu ");
 
   /* Tuesday */
@@ -267,6 +292,7 @@ test(get_id_length_shall_return_the_length_of_the_id_trimmed_from_ws) {
  */
 test(get_id_shall_copy_the_id_from_a_sprint_to_dest) {
   char dest[32];
+  cutest_mock.memcpy.func = memcpy;
   get_id(dest, 17, "yyyy-mm-dd yyyy-mm-dd DdDd nn Title-title-title");
   assert_eq(0 == strcmp(dest, "Title-title-title"));
 }
@@ -340,6 +366,9 @@ test(is_sprint_should_assess_sprints_correctly) {
   /* Integrate helpers by not mocking them */
   /* TODO: Remove these when module_test() macro is done in cutest. */
   cutest_mock.is_date.retval = 1;
+  cutest_mock.strlen.func = strlen;
+  cutest_mock.is_weekday_short.func = is_weekday_short;
+  cutest_mock.skip_schedule_length.func = skip_schedule_length;
   cutest_mock.has_date.func = has_date;
   cutest_mock.has_dates.func = has_dates;
   cutest_mock.has_schedule.func = has_schedule;

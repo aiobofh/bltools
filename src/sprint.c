@@ -6,6 +6,7 @@
  *
  */
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -26,7 +27,7 @@ static int has_date(const char* s) {
 
   size_t pos = 0;
 
-  if (0 == call(is_date(s))) {
+  if (0 == is_date(s)) {
     return 0;
   }
 
@@ -46,14 +47,14 @@ static int has_date(const char* s) {
 static int has_dates(const char* str) {
   assert(NULL != str && "NULL input not supported by has_dates()");
 
-  const int start_date = call(has_date(str));
+  const int start_date = has_date(str);
 
   if (0 == start_date) {
     return 0;
   }
 
   const int end_date =
-    call(has_date((char*)str + 11 /* strlen("yyyy-mm-dd ") - 1 */));
+    has_date((char*)str + 11 /* strlen("yyyy-mm-dd ") - 1 */);
 
   if (0 == end_date) {
     return 0;
@@ -62,7 +63,7 @@ static int has_dates(const char* str) {
   return 1;
 }
 
-static inline int is_weekday_short(const char* s) {
+static int is_weekday_short(const char* s) {
   const int retval = ((('M' == s[0]) && ('o' == s[1])) ||
                       (('T' == s[0]) && ('u' == s[1])) ||
                       (('W' == s[0]) && ('e' == s[1])) ||
@@ -96,7 +97,7 @@ static int has_schedule(const char* str) {
   return weekday;
 }
 
-static inline int skip_schedule_length(const char* str) {
+static int skip_schedule_length(const char* str) {
   int pos = SCHEDULEPOS;
   while (str[pos] != ' ') {
     pos++;
@@ -184,7 +185,7 @@ static void get_start_date(date_t* start, const char* str) {
   assert(NULL != str && "NULL string not supported by get_start_date()");
   assert(1 == has_dates(str) && "Input string never verified to have dates");
 
-  call(get_date(start, str));
+  get_date(start, str);
 }
 
 /*
@@ -195,7 +196,7 @@ static void get_end_date(date_t* start, const char* str) {
   assert(NULL != str && "NULL string not supported by get_start_date()");
   assert(1 == has_dates(str) && "Input string never verified to have dates");
 
-  call(get_date(start, (char*)str + 11)); /* strlen("yyyy-mm-dd ") */
+  get_date(start, (char*)str + 11); /* strlen("yyyy-mm-dd ") */
 }
 
 /*
@@ -238,7 +239,7 @@ static int get_wday(const char* str) {
   return 0;
 }
 
-static inline void date2tm(struct tm* tm, date_t* date) {
+static void date2tm(struct tm* tm, date_t* date) {
   bzero(tm, sizeof(*tm));
   tm->tm_sec = 0;
   tm->tm_min = 0;
@@ -370,10 +371,10 @@ static void get_id(char* dest, size_t len, const char* str) {
 int is_sprint(const char* str) {
   assert(NULL != str && "NULL string not supported by is_sprint()");
 
-  if ((0 == call(has_dates(str))) ||
-      (0 == call(has_schedule(str))) ||
-      (0 == call(has_commitment(str))) ||
-      (0 == call(has_id(str)))) {
+  if ((0 == has_dates(str)) ||
+      (0 == has_schedule(str)) ||
+      (0 == has_commitment(str)) ||
+      (0 == has_id(str))) {
     return 0;
   }
 
@@ -381,26 +382,26 @@ int is_sprint(const char* str) {
 }
 
 static void init_dates(date_t* start, date_t* end, const char* str) {
-  call(get_start_date(start, str));
-  call(get_end_date(end, str));
+  get_start_date(start, str);
+  get_end_date(end, str);
 }
 
 static void init_schedule(date_t* start, date_t** sched, const char* str) {
-  const int schedule_cnt = call(get_days_in_schedule(str));
-  *sched = call(malloc(sizeof(**sched) * schedule_cnt));
+  const int schedule_cnt = get_days_in_schedule(str);
+  *sched = malloc(sizeof(**sched) * schedule_cnt);
   assert(NULL != *sched && "Out of memory for schedule array");
-  call(get_schedule(start, *sched, str));
+  get_schedule(start, *sched, str);
 }
 
 static void init_commitment(int* commitment, const char* str) {
-  *commitment = call(get_commitment(str));
+  *commitment = get_commitment(str);
 }
 
 static void init_id(char** id, const char* str) {
-  const int id_length = call(get_id_length(str));
-  *id = call(malloc(id_length + 1)); /* Space for NULL termination */
+  const int id_length = get_id_length(str);
+  *id = malloc(id_length + 1); /* Space for NULL termination */
   assert(NULL != *id && "Out of memory for id string");
-  call(get_id(*id, id_length, str));
+  get_id(*id, id_length, str);
 }
 
 /*
@@ -411,19 +412,19 @@ void sprint_init(sprint_t* sprint, const char* str) {
   assert(NULL != str && "A file row must be passed as argument");
   assert(1 == is_sprint(str) && "Input string never verified");
 
-  call(init_dates(&sprint->start, &sprint->end, str));
-  call(init_schedule(&sprint->start, &sprint->schedule, str));
-  call(init_commitment(&sprint->commitment, str));
-  call(init_id(&sprint->id, str));
+  init_dates(&sprint->start, &sprint->end, str);
+  init_schedule(&sprint->start, &sprint->schedule, str);
+  init_commitment(&sprint->commitment, str);
+  init_id(&sprint->id, str);
 }
 
 static void cleanup_id(char** id) {
-  call(free(*id));
+  free(*id);
   *id = NULL;
 }
 
 static void cleanup_schedule(date_t** schedule) {
-  call(free(*schedule));
+  free(*schedule);
   *schedule = NULL;
 }
 
@@ -431,6 +432,6 @@ void sprint_cleanup(sprint_t* sprint) {
   assert(NULL != sprint && "NULL sprint not supported by sprint_cleanup()");
   assert(NULL != sprint->id && "Sprint ID must have been allocated");
 
-  call(cleanup_id(&sprint->id));
-  call(cleanup_schedule(&sprint->schedule));
+  cleanup_id(&sprint->id);
+  cleanup_schedule(&sprint->schedule);
 }

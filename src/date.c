@@ -45,10 +45,7 @@ int is_date(const char* s) {
 long date2long(date_t* date) {
   assert(NULL != date && "NULL date is not supported by date2long");
 
-  char buf[12];
-  /* TODO: Remove need for sprintf, is possible */
-  sprintf(buf, "%04d%02d%02d", date->year, date->month, date->day);
-  return atol(buf);
+  return (date->year * 10000 + date->month * 100 + date->day);
 }
 
 void long2date(date_t* dst, long int date) {

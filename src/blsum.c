@@ -16,21 +16,21 @@ story_row_cb_t func;
 
 int done(story_t* story) {
   if (STATUS_DONE == story->status) {
-    call(sum_min_estimates(&sum, story));
+    sum_min_estimates(&sum, story);
   }
   return 0;
 }
 
 int todo_min(story_t* story) {
   if (STATUS_TODO == story->status) {
-    call(sum_min_estimates(&sum, story));
+    sum_min_estimates(&sum, story);
   }
   return 0;
 }
 
 int todo_max(story_t* story) {
   if (STATUS_TODO == story->status) {
-    call(sum_max_estimates(&sum, story));
+    sum_max_estimates(&sum, story);
   }
   return 0;
 }
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 
   assert(NULL != func);
 
-  retval = call(backlog_read(filename, func));
+  retval = backlog_read(filename, func);
 
   printf("%d\n", sum);
 

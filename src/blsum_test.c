@@ -9,6 +9,8 @@ static fpos_t stderr_pos;
 static int muted_stdout_fd;
 static fpos_t stdout_pos;
 
+extern int sum;
+
 extern int fileno(FILE *stream);
 
 static void mute_stderr() {
