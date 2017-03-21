@@ -87,11 +87,24 @@ with for example GNU Plot to create a burn-down chart plot for the specified
 sprint::
 
   $ blburn example.org sprints.list Sprint-001
-  10
-  10
-  10
-  10
-  5
+  Mo 10
+  Tu 10
+  We 10
+  Th 5
+  Fr 5
+
+But if there for example is a holiday on Thursday it shall be removed from
+the sprint definition line in the sprint-list::
+
+  2017-01-02 2017-01-06 MoTuWeFr 10 Sprint-001
+
+And the output will be adjusted accordingly::
+
+  $ blburn example.org sprints.list Sprint-001
+  Mo 10
+  Tu 10
+  We 10
+  Fr 5
 
 Note
 ----

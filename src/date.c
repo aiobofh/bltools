@@ -72,3 +72,36 @@ void dateadd(date_t* date) {
   date->month = tmp->tm_mon + 1;
   date->day = tmp->tm_mday;
 }
+
+void date2shortname(char dst[3], date_t* date) {
+  time_t timestamp;
+  struct tm tm;
+  struct tm* tmp;
+  bzero(&tm, sizeof(struct tm));
+  tm.tm_sec = 0;
+  tm.tm_min = 0;
+  tm.tm_hour = 12;
+  tm.tm_mday = date->day;
+  tm.tm_mon = date->month - 1;
+  tm.tm_year = date->year - 1900;
+  timestamp = mktime(&tm);
+  tmp = gmtime(&timestamp);
+  switch (tmp->tm_wday) {
+  case 0:
+    dst[0] = 'S'; dst[1] = 'u'; break;
+  case 1:
+    dst[0] = 'M'; dst[1] = 'o'; break;
+  case 2:
+    dst[0] = 'T'; dst[1] = 'h'; break;
+  case 3:
+    dst[0] = 'W'; dst[1] = 'e'; break;
+  case 4:
+    dst[0] = 'T'; dst[1] = 'h'; break;
+  case 5:
+    dst[0] = 'F'; dst[1] = 'r'; break;
+  case 6:
+    dst[0] = 'S'; dst[1] = 'a'; break;
+  default:
+    assert(1 == 0 && "This should never happen");
+  }
+}

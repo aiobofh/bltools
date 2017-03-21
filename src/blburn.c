@@ -111,7 +111,12 @@ static void print_burndown(sprint_t* sprint, story_t* story[MAX_STORIES_PER_SPRI
   long cur_date = date2long(&sprint->start);
   long end_date = date2long(&sprint->end);
   int commitment = sprint->commitment;
-  while (cur_date < end_date) {
+  int schedule_idx = 1;
+  char shortname[3];
+  shortname[2] = 0;
+  date2shortname(shortname, &sprint->start);
+  printf("%s %d\n", shortname, commitment);
+  while (cur_date <= end_date) {
     date_t c;
     int story_idx = 0;
 
@@ -124,12 +129,14 @@ static void print_burndown(sprint_t* sprint, story_t* story[MAX_STORIES_PER_SPRI
       story_idx++;
     }
 
-    printf("%d\n", commitment);
-
+    if (cur_date == date2long(&sprint->schedule[schedule_idx])) {
+      date2shortname(shortname, &sprint->schedule[schedule_idx]);
+      schedule_idx++;
+      printf("%s %d\n", shortname, commitment);
+    }
     long2date(&c, cur_date);
     dateadd(&c);
     cur_date = date2long(&c);
-    /* TODO: Skip non-sprint-days */
   }
 }
 
