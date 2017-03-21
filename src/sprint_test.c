@@ -541,20 +541,20 @@ test(sprint_init_shall_call_init_id_correclty) {
  * cleanup_id()
  */
 test(cleanup_id_shall_free_the_memory_allocated_for_sprint_id_string) {
-  char* id;
+  char* id = (char*)1234;
   cleanup_id(&id);
   assert_eq(1, cutest_mock.free.call_count);
-  assert_eq(id, cutest_mock.free.args.arg0);
+  assert_eq((char*)1234, cutest_mock.free.args.arg0);
 }
 
 /*
  * cleanup_schedule()
  */
 test(cleanup_shedule_shall_free_the_memory_allocated_for_sprint_schedule) {
-  date_t* schedule;
+  date_t* schedule = (date_t*)1234;
   cleanup_schedule(&schedule);
   assert_eq(1, cutest_mock.free.call_count);
-  assert_eq(schedule, cutest_mock.free.args.arg0);
+  assert_eq((date_t*)1234, cutest_mock.free.args.arg0);
 }
 
 /*
