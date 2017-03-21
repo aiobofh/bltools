@@ -17,16 +17,16 @@ cutest:
 -include cutest/src/coverage.mk
 
 blcheck: blcheck.c date.c story.c backlog.c
-	$(CC) -o $@ $^ -D"call(func)=func" -O2
+	$(CC) -o $@ $^ -O2
 
 blsum: blsum.c date.c story.c backlog.c
-	$(CC) -o $@ $^ -D"call(func)=func" -O2
+	$(CC) -o $@ $^ -O2
 
 blsprints: blsprints.c date.c sprint.c
-	$(CC) -o $@ $^ -D"call(func)=func" -O2
+	$(CC) -o $@ $^ -O2
 
 blburn: blburn.c date.c sprint.c story.c backlog.c
-	$(CC) -o $@ $^ -D"call(func)=func" -O2
+	$(CC) -o $@ $^ -O2
 
 clean::
 	$(Q)$(RM) -rf *~ blcheck blsum blsprints blburn
