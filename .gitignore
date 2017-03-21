@@ -13,3 +13,4 @@ src/*.gcda
 src/*.lst
 src/*.o
 src/*.s
+*~
