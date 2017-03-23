@@ -8,6 +8,7 @@ src/blcheck
 src/blsum
 src/blsprints
 src/blburn
+src/blvelocity
 src/*.gcno
 src/*.gcda
 src/*.lst
