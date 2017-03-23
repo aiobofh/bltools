@@ -175,22 +175,22 @@ test(parse_and_print_shall_return_0_on_success) {
 }
 
 /*
- * sprint_read()
+ * sprint_simple_read()
  */
-test(sprints_read_shall_call_fopen_correctly) {
+test(sprints_simple_read_shall_call_fopen_correctly) {
   const char* sprintfile = "sprintfile";
 
   mute_stderr();
-  (void)sprints_read(sprintfile);
+  (void)sprints_simple_read(sprintfile);
   unmute_stderr();
 
   assert_eq(1, cutest_mock.fopen.call_count);
   assert_eq(sprintfile, cutest_mock.fopen.args.arg0);
 }
 
-test(sprints_read_shall_return_1_if_fopen_fails_to_open_file) {
+test(sprints_simple_read_shall_return_1_if_fopen_fails_to_open_file) {
   mute_stderr();
-  assert_eq(1, sprints_read("sprintfile"));
+  assert_eq(1, sprints_simple_read("sprintfile"));
   unmute_stderr();
 }
 
@@ -204,25 +204,25 @@ static int feof_4_times_stub(FILE* stream) {
   return 1;
 }
 
-test(sprints_read_shall_read_the_file_until_feof_returns_nonzero) {
+test(sprints_simple_read_shall_read_the_file_until_feof_returns_nonzero) {
   feof_4_times_stub_calls = 4;
 
   cutest_mock.fopen.retval = (FILE*)4321;
   cutest_mock.feof.func = feof_4_times_stub;
 
-  (void)sprints_read((char*)1234);
+  (void)sprints_simple_read((char*)1234);
 
   assert_eq(0, feof_4_times_stub_calls);
 
   feof_4_times_stub_calls = 4;
 }
 
-test(sprints_read_shall_call_parse_and_print_correctly_for_every_file_row) {
+test(sprints_simple_read_shall_call_parse_and_print_correctly_for_every_file_row) {
   feof_4_times_stub_calls = 4;
   cutest_mock.fopen.retval = (FILE*)4321;
   cutest_mock.feof.func = feof_4_times_stub;
 
-  (void)sprints_read((char*)1234);
+  (void)sprints_simple_read((char*)1234);
 
   assert_eq(4, cutest_mock.parse_and_print.call_count);
   assert_eq((FILE*)4321, cutest_mock.parse_and_print.args.arg0);
@@ -230,24 +230,24 @@ test(sprints_read_shall_call_parse_and_print_correctly_for_every_file_row) {
   feof_4_times_stub_calls = 4;
 }
 
-test(sprints_read_shall_close_file_and_return_2_if_parse_and_print_fails) {
+test(sprints_simple_read_shall_close_file_and_return_2_if_parse_and_print_fails) {
   feof_4_times_stub_calls = 4;
   cutest_mock.fopen.retval = (FILE*)4321;
   cutest_mock.parse_and_print.retval = 8765;
 
-  assert_eq(2, sprints_read((char*)1234));
+  assert_eq(2, sprints_simple_read((char*)1234));
   /* Abort on first loop */
   assert_eq(1, cutest_mock.parse_and_print.call_count);
   assert_eq(1, cutest_mock.fclose.call_count);
   assert_eq((FILE*)4321, cutest_mock.fclose.args.arg0);
 }
 
-test(sprints_read_shall_close_the_file_and_return_0_at_end_of_file) {
+test(sprints_simple_read_shall_close_the_file_and_return_0_at_end_of_file) {
   feof_4_times_stub_calls = 4;
   cutest_mock.fopen.retval = (FILE*)4321;
   cutest_mock.feof.retval = 1;
 
-  assert_eq(0, sprints_read((char*)1234));
+  assert_eq(0, sprints_simple_read((char*)1234));
   assert_eq(1, cutest_mock.fclose.call_count);
   assert_eq((FILE*)4321, cutest_mock.fclose.args.arg0);
 }
@@ -267,19 +267,19 @@ test(main_shall_return_EXIT_FAILURE_on_too_many_arguments) {
   unmute_stderr();
 }
 
-test(main_shall_call_sprints_read_correctly) {
+test(main_shall_call_sprints_simple_read_correctly) {
   char* argv[] = {(char*)1234, (char*)5678};
 
   (void)main(2, argv);
 
-  assert_eq(1, cutest_mock.sprints_read.call_count);
-  assert_eq((char*)5678, cutest_mock.sprints_read.args.arg0);
+  assert_eq(1, cutest_mock.sprints_simple_read.call_count);
+  assert_eq((char*)5678, cutest_mock.sprints_simple_read.args.arg0);
 }
 
 test(main_shall_return_EXIT_FAILURE_when_sprits_read_fails) {
   char* argv[] = {(char*)1234, (char*)5678};
 
-  cutest_mock.sprints_read.retval = 4321;
+  cutest_mock.sprints_simple_read.retval = 4321;
 
   assert_eq(EXIT_FAILURE, main(2, argv));
 }

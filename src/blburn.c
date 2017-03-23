@@ -15,44 +15,12 @@
 int m_sprint_idx;
 sprint_t m_sprint[2048];
 
-static int sprints_read(const char* sprintfile) {
-  int retval = 0;
-
-  int row = 0;
-  FILE* fd = fopen(sprintfile, "r");
-  while (!feof(fd)) {
-    char buf[1024];
-    char* b = fgets(buf, sizeof(buf), fd);
-    if (NULL == b) {
-      if (feof(fd)) {
-        break;
-      }
-      fprintf(stderr, "ERROR: Unable to read file %s:%d\n", sprintfile, row);
-      retval = 1;
-      break;
-    }
-    /* Trunk linefeed if any */
-    char len = strlen(buf) - 1;
-    while (('\n' == buf[len]) ||
-           ('\r' == buf[len])) {
-      buf[len] = '\0';
-      len--;
-    }
-    if (1 == is_sprint(buf)) {
-      sprint_init(&m_sprint[m_sprint_idx++], buf);
-    }
-    else {
-      fprintf(stderr, "ERROR: No sprint at %s:%d\n%s\n", sprintfile, row, buf);
-      retval = 2;
-      break;
-    }
-    row++;
-  }
-  fclose(fd);
-  return retval;
+static int sprint_copy(const sprint_t* sprint) {
+  m_sprint[m_sprint_idx] = *sprint;
+  return m_sprint_idx++;
 }
 
-static int sprints_cleanup() {
+static void sprints_cleanup() {
   while (0 < m_sprint_idx) {
     sprint_cleanup(&m_sprint[m_sprint_idx--]);
   }
@@ -97,7 +65,8 @@ static int select_stories(story_t* story[MAX_STORIES_PER_SPRINT], sprint_t* spri
     if ((story_end >= sprint_start) && (story_end <= sprint_end)) {
       story[story_cnt++] = &m_story[story_idx];
       if (MAX_STORIES_PER_SPRINT < story_cnt) {
-        fprintf(stderr, "ERROR: Too many stories done during requested sprint\n");
+        fprintf(stderr,
+                "ERROR: Too many stories done during requested sprint\n");
         return 0;
       }
     }
@@ -106,7 +75,8 @@ static int select_stories(story_t* story[MAX_STORIES_PER_SPRINT], sprint_t* spri
   return story_cnt;
 }
 
-static void print_burndown(sprint_t* sprint, story_t* story[MAX_STORIES_PER_SPRINT],
+static void print_burndown(sprint_t* sprint,
+                           story_t* story[MAX_STORIES_PER_SPRINT],
                            int story_cnt) {
   long cur_date = date2long(&sprint->start);
   long end_date = date2long(&sprint->end);
@@ -155,7 +125,7 @@ int main(int argc, char* argv[]) {
 
   m_story_idx = 0;
 
-  sprints_read(sprintfile);
+  sprints_read(sprintfile, sprint_copy);
   backlog_read(orgfile, append_story);
 
   sprint_t* sprint = select_sprint(sprintid);

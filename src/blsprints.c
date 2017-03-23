@@ -56,7 +56,7 @@ static int parse_and_print(FILE *fd, const char* sprintfile, int row) {
   return 0;
 }
 
-static int sprints_read(const char* sprintfile) {
+static int sprints_simple_read(const char* sprintfile) {
   int row = 0;
   FILE* fd = fopen(sprintfile, "r");
   if (NULL == fd) {
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
 
   const char* sprintfile = argv[1];
 
-  if (0 != sprints_read(sprintfile)) {
+  if (0 != sprints_simple_read(sprintfile)) {
     return EXIT_FAILURE;
   }
 

@@ -573,3 +573,66 @@ test(sprint_cleanup_shall_call_cleanup_schedule_correctly) {
   assert_eq(1, cutest_mock.cleanup_schedule.call_count);
   assert_eq(&sprint.schedule, cutest_mock.cleanup_schedule.args.arg0);
 }
+
+/*
+ * sprints_read()
+ */
+test(sprints_read_shall_return_1_if_specified_file_could_not_be_opened) {
+  assert_eq(1, sprints_read((const char*)1234, NULL));
+}
+
+test(sprints_read_shall_return_2_if_specified_file_could_not_be_read) {
+  cutest_mock.fopen.retval = (FILE*)5678;
+  assert_eq(2, sprints_read((const char*)1234, NULL));
+}
+
+test(sprints_read_shall_return_3_if_found_an_inbalid_sprint_row) {
+  cutest_mock.fopen.retval = (FILE*)5678;
+  cutest_mock.fgets.retval = (char*)8765;
+  assert_eq(3, sprints_read((const char*)1234, NULL));
+}
+
+const char* fgets_src2 = "Foo";
+
+char* fgets_with_contents(char* s, int size, FILE* stream) {
+  (void)(stream = stream);
+  (void)(size = size);
+  strcpy(s, fgets_src2);
+  return s;
+}
+
+int feof_third_call_will_return_1_cnt = 0;
+int feof_third_call_will_return_1(FILE* stream) {
+  (void)(stream = stream);
+  return (feof_third_call_will_return_1_cnt++ > 0);
+}
+
+test(sprints_read_shall_call_sprint_init_correctly) {
+  feof_third_call_will_return_1_cnt = 0;
+  cutest_mock.fopen.retval = (FILE*)5678;
+  cutest_mock.fgets.func = fgets_with_contents;
+  cutest_mock.feof.func = feof_third_call_will_return_1;
+  cutest_mock.is_sprint.retval = 1;
+  assert_eq(0, sprints_read((const char*)1234, NULL));
+  assert_eq(1, cutest_mock.sprint_init.call_count);
+  assert_eq(NULL != cutest_mock.sprint_init.args.arg0);
+  assert_eq(strncmp("Foo", cutest_mock.sprint_init.args.arg1, 3));
+}
+
+int sprint_row_callback_cnt = 0;
+int sprint_row_callback(const sprint_t* sprint) {
+  (void)(sprint = sprint);
+  sprint_row_callback_cnt++;
+  return 0;
+}
+
+test(sprints_read_shall_call_callback_function_correctly) {
+  feof_third_call_will_return_1_cnt = 0;
+  sprint_row_callback_cnt = 0;
+  cutest_mock.fopen.retval = (FILE*)5678;
+  cutest_mock.feof.func = feof_third_call_will_return_1;
+  cutest_mock.fgets.retval = (char*)8765;
+  cutest_mock.is_sprint.retval = 1;
+  assert_eq(0, sprints_read((const char*)1234, sprint_row_callback));
+  assert_eq(1, sprint_row_callback_cnt);
+}

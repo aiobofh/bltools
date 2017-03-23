@@ -435,3 +435,49 @@ void sprint_cleanup(sprint_t* sprint) {
   cleanup_id(&sprint->id);
   cleanup_schedule(&sprint->schedule);
 }
+
+int sprints_read(const char* filename, sprint_row_cb_t sprint_row_cb) {
+  assert(NULL != filename &&
+         "NULL filename is not supported by sprintes_read");
+  int retval = 0;
+  int row = 0;
+
+  FILE* fd = fopen(filename, "r");
+  if (NULL == fd) {
+    fprintf(stderr, "ERROR: Unable to open file %s\n", filename);
+    return 1;
+  }
+  while (!feof(fd)) {
+    char buf[1024];
+    char* b = fgets(buf, sizeof(buf), fd);
+    if (NULL == b) {
+      if (feof(fd)) {
+        break;
+      }
+      fprintf(stderr, "ERROR: Unable to read file %s:%d\n", filename, row);
+      retval = 2;
+      break;
+    }
+
+    /* Trunk linefeed if any */
+    size_t len = strlen(buf) - 1;
+    buf[len] = '\0';
+
+    if (1 == is_sprint(buf)) {
+      sprint_t sprint;
+      sprint_init(&sprint, buf);
+      if (NULL != sprint_row_cb) {
+        sprint_row_cb(&sprint);
+      }
+    }
+    else {
+      fprintf(stderr,
+              "ERROR: No sprint at %s:%d\n%s\n", filename, row, buf);
+      retval = 3;
+      break;
+    }
+    row++;
+  }
+  fclose(fd);
+  return retval;
+}
