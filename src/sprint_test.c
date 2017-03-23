@@ -405,10 +405,11 @@ test(init_dates_shall_call_get_end_date_correctly) {
  */
 test(init_schedule_shall_call_get_days_in_schedule_correctly) {
   date_t* schedule;
+  int cnt;
 
   cutest_mock.malloc.retval = (void*)8765; /* Avoid assert */
 
-  init_schedule((date_t*)1234, &schedule, (char*)5678);
+  init_schedule(&cnt, (date_t*)1234, &schedule, (char*)5678);
 
   assert_eq(1, cutest_mock.get_days_in_schedule.call_count);
   assert_eq((char*)5678, cutest_mock.get_days_in_schedule.args.arg0);
@@ -416,11 +417,12 @@ test(init_schedule_shall_call_get_days_in_schedule_correctly) {
 
 test(init_schedule_shall_call_malloc_correctly) {
   date_t* schedule;
+  int cnt;
 
   cutest_mock.get_days_in_schedule.retval = 4321;
   cutest_mock.malloc.retval = (void*)8765; /* Avoid assert */
 
-  init_schedule((date_t*)1234, &schedule, (char*)5678);
+  init_schedule(&cnt, (date_t*)1234, &schedule, (char*)5678);
 
   assert_eq(1, cutest_mock.malloc.call_count);
   assert_eq(sizeof(date_t) * 4321, cutest_mock.malloc.args.arg0);
@@ -428,10 +430,11 @@ test(init_schedule_shall_call_malloc_correctly) {
 
 test(init_schedule_shall_call_get_schedule_correctly) {
   date_t* schedule;
+  int cnt;
 
   cutest_mock.malloc.retval = (void*)8765; /* Avoid assert */
 
-  init_schedule((date_t*)1234, &schedule, (char*)5678);
+  init_schedule(&cnt, (date_t*)1234, &schedule, (char*)5678);
 
   assert_eq(1, cutest_mock.get_schedule.call_count);
   assert_eq((date_t*)1234, cutest_mock.get_schedule.args.arg0);
@@ -512,9 +515,10 @@ test(sprint_init_shall_call_init_schedule_correclty) {
   sprint_t sprint;
   sprint_init(&sprint, str);
   assert_eq(1, cutest_mock.init_schedule.call_count);
-  assert_eq(&sprint.start, cutest_mock.init_schedule.args.arg0);
-  assert_eq(&sprint.schedule, cutest_mock.init_schedule.args.arg1);
-  assert_eq(str, cutest_mock.init_schedule.args.arg2);
+  assert_eq(&sprint.schedule_cnt, cutest_mock.init_schedule.args.arg0);
+  assert_eq(&sprint.start, cutest_mock.init_schedule.args.arg1);
+  assert_eq(&sprint.schedule, cutest_mock.init_schedule.args.arg2);
+  assert_eq(str, cutest_mock.init_schedule.args.arg3);
 }
 
 test(sprint_init_shall_call_init_commitment_correclty) {

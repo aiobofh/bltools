@@ -6,6 +6,7 @@
 typedef struct {
   date_t start;
   date_t end;
+  int schedule_cnt;
   date_t* schedule;
   int commitment;
   char* id;

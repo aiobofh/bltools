@@ -12,7 +12,8 @@ all:
 	${MAKE} -s blcheck && \
 	${MAKE} -s blsum && \
 	${MAKE} -s blsprints && \
-	${MAKE} -s blburn
+	${MAKE} -s blburn && \
+	${MAKE} -s blvelocity
 
 cutest:
 	$(Q)git clone "https://github.com/aiobofh/cutest.git" -q
@@ -30,6 +31,9 @@ blsprints: blsprints.c date.c sprint.c
 	$(CC) -o $@ $^ -O2
 
 blburn: blburn.c date.c sprint.c story.c backlog.c
+	$(CC) -o $@ $^ -O2
+
+blvelocity: blvelocity.c date.c sprint.c story.c backlog.c
 	$(CC) -o $@ $^ -O2
 
 clean::

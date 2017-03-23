@@ -386,10 +386,12 @@ static void init_dates(date_t* start, date_t* end, const char* str) {
   get_end_date(end, str);
 }
 
-static void init_schedule(date_t* start, date_t** sched, const char* str) {
+static void init_schedule(int* cnt, date_t* start, date_t** sched,
+                         const char* str) {
   const int schedule_cnt = get_days_in_schedule(str);
   *sched = malloc(sizeof(**sched) * schedule_cnt);
   assert(NULL != *sched && "Out of memory for schedule array");
+  *cnt = schedule_cnt;
   get_schedule(start, *sched, str);
 }
 
@@ -413,7 +415,8 @@ void sprint_init(sprint_t* sprint, const char* str) {
   assert(1 == is_sprint(str) && "Input string never verified");
 
   init_dates(&sprint->start, &sprint->end, str);
-  init_schedule(&sprint->start, &sprint->schedule, str);
+  init_schedule(&sprint->schedule_cnt, &sprint->start,
+                &sprint->schedule, str);
   init_commitment(&sprint->commitment, str);
   init_id(&sprint->id, str);
 }
