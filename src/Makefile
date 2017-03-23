@@ -1,9 +1,13 @@
-Q=@
+Q ?= @
+
+export Q
 
 .SUFFIXES:
 
 all:
-	$(Q)${MAKE} -s cutest && \
+	$(Q)export Q="${Q}"; \
+	export MAKEFLAGS="${MAKEFLAGS}";\
+	${MAKE} -s cutest && \
 	${MAKE} -s check && \
 	${MAKE} -s blcheck && \
 	${MAKE} -s blsum && \
