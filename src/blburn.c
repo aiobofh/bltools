@@ -20,12 +20,6 @@ static int sprint_copy(const sprint_t* sprint) {
   return m_sprint_idx++;
 }
 
-static void sprints_cleanup() {
-  while (0 < m_sprint_idx) {
-    sprint_cleanup(&m_sprint[m_sprint_idx--]);
-  }
-}
-
 int m_story_idx;
 story_t m_story[2048];
 
