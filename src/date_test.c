@@ -73,3 +73,55 @@ test(dateadd_shall_add_a_day_to_the_input_date_at_year_end) {
   assert_eq(1, date.month);
   assert_eq(1, date.day);
 }
+
+/*
+ * date2shortname()
+ */
+#define DATE2SHORTNAME_FIXTURE(WDAY) \
+  char shortname[3] = {0, 0, 0};     \
+  date_t date;                       \
+  struct tm tm;                      \
+  cutest_mock.gmtime.retval = &tm;   \
+  tm.tm_wday = WDAY
+
+test(date2shortname_shall_set_destination_to_Mo_if_date_is_a_monday) {
+  DATE2SHORTNAME_FIXTURE(1);
+  date2shortname(shortname, &date);
+  assert_eq(0, strcmp("Mo", shortname));
+}
+
+test(date2shortname_shall_set_destination_to_Tu_if_date_is_a_tuesday) {
+  DATE2SHORTNAME_FIXTURE(2);
+  date2shortname(shortname, &date);
+  assert_eq(0, strcmp("Tu", shortname));
+}
+
+test(date2shortname_shall_set_destination_to_We_if_date_is_a_wednesday) {
+  DATE2SHORTNAME_FIXTURE(3);
+  date2shortname(shortname, &date);
+  assert_eq(0, strcmp("We", shortname));
+}
+
+test(date2shortname_shall_set_destination_to_Th_if_date_is_a_thursday) {
+  DATE2SHORTNAME_FIXTURE(4);
+  date2shortname(shortname, &date);
+  assert_eq(0, strcmp("Th", shortname));
+}
+
+test(date2shortname_shall_set_destination_to_Fr_if_date_is_a_friday) {
+  DATE2SHORTNAME_FIXTURE(5);
+  date2shortname(shortname, &date);
+  assert_eq(0, strcmp("Fr", shortname));
+}
+
+test(date2shortname_shall_set_destination_to_Sa_if_date_is_a_saturday) {
+  DATE2SHORTNAME_FIXTURE(6);
+  date2shortname(shortname, &date);
+  assert_eq(0, strcmp("Sa", shortname));
+}
+
+test(date2shortname_shall_set_destination_to_Su_if_date_is_a_sunday) {
+  DATE2SHORTNAME_FIXTURE(0);
+  date2shortname(shortname, &date);
+  assert_eq(0, strcmp("Su", shortname));
+}

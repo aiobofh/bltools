@@ -92,7 +92,7 @@ void date2shortname(char dst[3], date_t* date) {
   case 1:
     dst[0] = 'M'; dst[1] = 'o'; break;
   case 2:
-    dst[0] = 'T'; dst[1] = 'h'; break;
+    dst[0] = 'T'; dst[1] = 'u'; break;
   case 3:
     dst[0] = 'W'; dst[1] = 'e'; break;
   case 4:
@@ -101,7 +101,5 @@ void date2shortname(char dst[3], date_t* date) {
     dst[0] = 'F'; dst[1] = 'r'; break;
   case 6:
     dst[0] = 'S'; dst[1] = 'a'; break;
-  default:
-    assert(1 == 0 && "This should never happen");
   }
 }
