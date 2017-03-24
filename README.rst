@@ -14,7 +14,7 @@ tools in the best way.
 
 You can find excessive test-code for the common code and the parser code in
 the source-folder. This is also a nice example hon how to use the CUTest test
-framework, which can be found here https://github.com/aiobofh/cutes.
+framework, which can be found here https://github.com/aiobofh/cutest.
 
 Backlogs
 --------
@@ -77,15 +77,15 @@ information::
   $ blsum -t -x example.org  # Get a sum of the maximum number of points TODO
   23
 
-There is also a tool called `blcheck` which only validates the formatting of
-the org-files. So that they look as bltools expect them to look.
+There is also a tool called ``blcheck`` which only validates the formatting
+of the org-files. So that they look as bltools expect them to look.
 
 Burn-down generator - blburn
 ----------------------------
 
-It's possible to feed some more information into the `blburn` command to get a
-plotable burn-down for a specific sprint. This requires you to declare the
-sprint start/stop, weekdays within the sprint and the commitment.
+It's possible to feed some more information into the ``blburn`` command to
+get a plotable burn-down for a specific sprint. This requires you to declare
+the sprint start/stop, weekdays within the sprint and the commitment.
 
 For example a one-week sprint in the beginning of 2017 with a commitment of
 10 points should look something like this::
@@ -96,7 +96,7 @@ Stored in a file. What this means is that a sprint is defined between the two
 days and all the days (Mo, Tu, We, Th and Fr) are working days. The commitment
 level for the sprint is 10 points and it's called "Sprint-001".
 
-Then the `blburn` command will be able to generate a series of points for use
+Then the ``blburn`` command will be able to generate a series of points for use
 with for example GNU Plot to create a burn-down chart plot for the specified
 sprint::
 
@@ -159,9 +159,9 @@ If you use a template somewhat looking like this::
   set yrange[@MINPTS@:@MAXPTS@]
   plot [0:@DAYS@] "sprint.dat" using 2:xtic(1) with lines
 
-... You will get a nice burn-down chart for the data from `blburn` stored in
-the `sprint.dat` file. You need to `sed` the @KEYWORD@ stuff in this template
-to your relevant information.
+... You will get a nice burn-down chart for the data from ``blburn`` stored in
+the ``sprint.dat`` file. You need to ``sed`` the @KEYWORD@ stuff in this
+template to your relevant information.
 
 Sprint-ID
 ^^^^^^^^^
@@ -194,4 +194,4 @@ Note
 
 Most of the executable tools build with this toolkit are still very
 experimental. However the code library underneath is fairly well tested
-using CUTest https://github.com/aiobofh/cutest .
+using CUTest https://github.com/aiobofh/cutest.
