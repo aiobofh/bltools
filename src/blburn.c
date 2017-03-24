@@ -54,7 +54,7 @@ static int select_stories(story_t* story[MAX_STORIES_PER_SPRINT], sprint_t* spri
       continue;
     }
 
-    long story_end = date2long(&m_story[story_idx].started);
+    long story_end = date2long(&m_story[story_idx].ended);
 
     if ((story_end >= sprint_start) && (story_end <= sprint_end)) {
       story[story_cnt++] = &m_story[story_idx];

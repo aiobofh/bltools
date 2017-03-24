@@ -54,7 +54,7 @@ static int select_stories(story_t* story[MAX_STORIES_PER_SPRINT], sprint_t* spri
       continue;
     }
 
-    long story_end = date2long(&m_story[story_idx].started);
+    long story_end = date2long(&m_story[story_idx].ended);
 
     if ((story_end >= sprint_start) && (story_end <= sprint_end)) {
       story[story_cnt++] = &m_story[story_idx];
@@ -121,7 +121,7 @@ int main(int argc, char* argv[]) {
   sprints_read(sprintfile, sprint_copy);
   backlog_read(orgfile, append_story);
 
-  double mean_vel = 0;
+  double sum_vel = 0;
   for (i = 0; i < m_sprint_idx; i++) {
     int j;
     story_t* story[MAX_STORIES_PER_SPRINT];
@@ -131,11 +131,13 @@ int main(int argc, char* argv[]) {
       break;
     }
     double vel = 0;
+    double mean_vel = 0;
     for (j = 0; j < story_cnt; j++) {
       vel += (double)story[j]->estimate.points;
     }
     vel /= (double)m_sprint[i].schedule_cnt;
-    mean_vel = vel / ((double)i + 1.0);
+    sum_vel += vel;
+    mean_vel = sum_vel / ((double)i + 1.0);
     printf("%s %f %f\n", m_sprint[i].id, vel, mean_vel);
   }
 
