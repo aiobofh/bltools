@@ -5,6 +5,17 @@ Emacs Org-Mode text-file Scrum backlog tools. This project will provide a few
 simple and quick tools to summarize backlog points, done points manage team
 velocity.
 
+Current state of this project is that the parser code and common code is in
+pretty OK shape, but the executable tools are still in need of improvements.
+Especially when it comes to documentation. In this README you can _briefly_
+get an idea on how to use them. But since the project is pretty young you
+might still need to refer to the source code to understand how to use the
+tools in the best way.
+
+You can find excessive test-code for the common code and the parser code in
+the source-folder. This is also a nice example hon how to use the CUTest test
+framework, which can be found here https://github.com/aiobofh/cutes.
+
 Backlogs
 --------
 
@@ -51,7 +62,10 @@ This is an example of a few valid story slogan rows::
 
     This is actually MANDATORY to be able to consider a story to be done.
 
-And by just letting the bltools parse this file you can get a lot of
+Statistics parser - blsum
+-------------------------
+
+By just letting the bltools parse this file you can get a lot of
 information::
 
   $ blsum -d example.org  # Get all DONE points
@@ -63,13 +77,13 @@ information::
   $ blsum -t -x example.org  # Get a sum of the maximum number of points TODO
   23
 
-There is also a tool called blcheck which only validates the formatting of
+There is also a tool called `blcheck` which only validates the formatting of
 the org-files. So that they look as bltools expect them to look.
 
-Burn-down generator
--------------------
+Burn-down generator - blburn
+----------------------------
 
-It's possible to feed some more information into the blburn command to get a
+It's possible to feed some more information into the `blburn` command to get a
 plotable burn-down for a specific sprint. This requires you to declare the
 sprint start/stop, weekdays within the sprint and the commitment.
 
@@ -82,11 +96,11 @@ Stored in a file. What this means is that a sprint is defined between the two
 days and all the days (Mo, Tu, We, Th and Fr) are working days. The commitment
 level for the sprint is 10 points and it's called "Sprint-001".
 
-Then the blburn command will be able to generate a series of points for use
+Then the `blburn` command will be able to generate a series of points for use
 with for example GNU Plot to create a burn-down chart plot for the specified
 sprint::
 
-  $ blburn example.org sprints.list Sprint-001
+  $ blburn example.org sprints.list Sprint-001  # Get the burn-down of sprint
   Mo 10
   Tu 10
   We 10
@@ -105,6 +119,75 @@ And the output will be adjusted accordingly::
   Tu 10
   We 10
   Fr 5
+
+Velocity trend generator - blvelocity
+-------------------------------------
+
+Having the sprint-list file defined and the Emacs Org-Mode files in place with
+the STARTDATE and DEADLINE tags set on DONE stories it's perfectly possible to
+generate a plot of the velocity trend for your team::
+
+  $ blvelocity example.org sprints.list
+  Sprint-001 0.300000 0.300000
+  Sprint-002 0.900000 0.600000
+  Sprint-003 1.100000 0.766667
+  ...
+
+The sprint ID read from the sprint-list file, and the DEADLINE date is used to
+determine which sprint a story was done and the first floating point number is
+the mean velocity of the sprint in question, in points per day. The third and
+last column is the mean velocity over time in points per day. This will help
+you keep track of over-/under-commitment for future sprints.
+
+Use in conjunction with Gnuplot
+-------------------------------
+
+It's pretty easy to parse the output from the bltools further to find min/max
+and graph lengths and such things. A nice way to present them is with Gnuplot.
+
+For example if you'd like a ASCII-art graph in your terminal or a SVG file for
+your web-site to radiate your progress.
+
+If you use a template somewhat looking like this::
+
+  set title "The awesome team burn-down @SPRINTID@ of @DAYS@ days
+  set xlabel "Days"
+  set ylabel "Points"
+  set xzeroaxis
+  set term dumb
+  set nokey
+  set yrange[@MINPTS@:@MAXPTS@]
+  plot [0:@DAYS@] "sprint.dat" using 2:xtic(1) with lines
+
+... You will get a nice burn-down chart for the data from `blburn` stored in
+the `sprint.dat` file. You need to `sed` the @KEYWORD@ stuff in this template
+to your relevant information.
+
+Sprint-ID
+^^^^^^^^^
+
+You can extract the latest sprint ID from your sprint-list using::
+
+  $ SPRINTID = $(blsprints sprint.list | tail -1)
+
+Sprint-duration
+^^^^^^^^^^^^^^^
+
+You can get the number of days in the sprint by doing some magic like::
+
+  $ DAYS = echo "$(tail -1 sprint.list | cut -d' ' -f3 | wc -c)/2" | bc
+
+Sprint burn-down points target
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The magic of have 0 (or less if you managed to finish some Next-storries)::
+
+  $ MIN = $(blburn foo.org sprint.list $SPRINTID | tail -1 | cut -d' ' -f2)
+  $ MINPTS = $(if [ ${MIN} -lt 0 ]; then echo ${MIN}; else echo 0; fi)
+
+... And the commitment for the sprint should probably be the max value::
+
+  $ MAXPTS = $(blburn foo.org sprint.list $SPRINTID | head -1 | cut -d' ' -f2)
 
 Note
 ----
