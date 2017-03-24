@@ -148,6 +148,9 @@ and graph lengths and such things. A nice way to present them is with Gnuplot.
 For example if you'd like a ASCII-art graph in your terminal or a SVG file for
 your web-site to radiate your progress.
 
+A Gnuplot template to generate a graphical burn-down chart
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 If you use a template somewhat looking like this::
 
   set title "The awesome team burn-down @SPRINTID@ of @DAYS@ days
@@ -164,21 +167,21 @@ the ``sprint.dat`` file. You need to ``sed`` the @KEYWORD@ stuff in this
 template to your relevant information.
 
 Sprint-ID
-^^^^^^^^^
+~~~~~~~~~
 
 You can extract the latest sprint ID from your sprint-list using::
 
   $ SPRINTID = $(blsprints sprint.list | tail -1)
 
 Sprint-duration
-^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~
 
 You can get the number of days in the sprint by doing some magic like::
 
   $ DAYS = echo "$(tail -1 sprint.list | cut -d' ' -f3 | wc -c)/2" | bc
 
 Sprint burn-down points target
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The magic of have 0 (or less if you managed to finish some Next-storries)::
 
@@ -188,6 +191,23 @@ The magic of have 0 (or less if you managed to finish some Next-storries)::
 ... And the commitment for the sprint should probably be the max value::
 
   $ MAXPTS = $(blburn foo.org sprint.list $SPRINTID | head -1 | cut -d' ' -f2)
+
+A Gnuplot template to generate a graphical velocity trent chart
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can use the output from ``blvelocity`` straight away with Gnuplot as well::
+
+  set title "Mean velocity per day, over time
+  set xlabel "Sprint"
+  set ylabel "Points"
+  set xzeroaxis
+  set term dumb
+  set nokey
+  set yrange[0:2]
+  plot "velocity.dat" using 2:xtic(1) with lines
+
+This Gnuplot configuration will read the output of ``blvelocity`` stored in
+the ``velocity.dat`` file to generate a nice trend chart.
 
 Note
 ----
