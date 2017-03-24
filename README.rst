@@ -250,7 +250,8 @@ You can get the number of days in the sprint by doing some magic like::
 Sprint burn-down points target
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The magic of have 0 (or less if you managed to finish some Next-storries)::
+The magic of having 0 (or less if you managed to finish some Next-storries)
+as minimum value of the chart::
 
   $ MIN = $(blburn foo.org sprint.list $SPRINTID | tail -1 | cut -d' ' -f2)
   $ MINPTS = $(if [ ${MIN} -lt 0 ]; then echo ${MIN}; else echo 0; fi)
