@@ -2,8 +2,8 @@ bltools
 =======
 
 Emacs Org-Mode text-file Scrum backlog tools. This project will provide a few
-simple and quick tools to summarize backlog points, done points manage team
-velocity.
+simple and quick tools to summarize backlog points, done points, and manage
+team velocity.
 
 This set of tools came into existence because of the *super* easy-to-use
 Emacs Org-Mode format for keeping track of task-lists. If you want to study
