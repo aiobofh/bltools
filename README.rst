@@ -5,6 +5,24 @@ Emacs Org-Mode text-file Scrum backlog tools. This project will provide a few
 simple and quick tools to summarize backlog points, done points manage team
 velocity.
 
+This set of tools came into existence because of the *super* easy-to-use
+Emacs Org-Mode format for keeping track of task-lists. If you want to study
+the Org-Mode in further detail than what this README describes please check
+out the http://orgmode.org/ page. The bltools might break some of the standard
+but if you use this carefully you will be a happy camper, using Emacs (or
+other text editors) to keep your backlog in nice shape. It's super convenient
+to move thins about in priority order and getting a structured format for
+your backlog, without relying on a heavy "agile tool" that requires a
+shit-load of administration. The ``bltools`` is an attempt to KISS principle.
+
+The text-format is also *extremely* easy to keep in git. You can resolve
+conflicts and collaborate very easily this way. I know many teams that keep
+the backlog in an Excel sheet in the Share-point server or on a shared network
+folder. But we all know how this will work with multiple users.... Not at all.
+
+It is also very nice to be able to work in text-mode only consoles with your
+backlog if you're a nerd like me.
+
 Current state of this project is that the parser code and common code is in
 pretty OK shape, but the executable tools are still in need of improvements.
 Especially when it comes to documentation. In this README you can _briefly_
@@ -61,6 +79,55 @@ This is an example of a few valid story slogan rows::
     * The DEADLINE Emacs Org-Mode tag is the date when the story was done.
 
     This is actually MANDATORY to be able to consider a story to be done.
+
+There is a corner case with ``bltools`` that requires you to have ALL stories
+estimated. But it can handle estimate ranges like this ``03-12`` meaning that
+the story is somewhere between 3p and 12p hard to do. Or you can just put
+``00`` on un-estimated stories until you have had the chance to groom your
+backlog further.
+
+Me (personally) prefer to write my stories like this::
+
+  * TODO 00 Doc. of bltools shall explain how to write stories :need-estimate:
+
+    As a Certified Scrum Master or Certified Product Owner i need to be able
+    to understand how to keep my backlog in as good a shape as possible to
+    be able to impress all my friends at work and have them awe my skills.
+
+    * [ ] Write some kind of example-based documentation
+    * [ ] Make sure there are as few spelling errors as possible
+    * [ ] Try it out on my friends
+
+    DoD: The bltools documentation shall explain how to write stories in a
+         good, example-based way with as few spelling errors as possible.
+
+... Then when the story is groomed and understood by the implementation team
+the title row should look like this instead (with an estimate)::
+
+  * TODO 01 Doc. of bltools shall explain how to write stories...
+
+It should also be SHIFT-Up/Down positioned in the correct priority with all
+the other stories in the backlog Org-Mode file.
+
+When the story is done it should look like this::
+
+  * DONE 01 Doc. of bltools shall explain how to write stories
+    STARTDATE: <2017-03-23> DEADLINE: <2017-03-24>
+
+    As a Certified Scrum Master or Certified Product Owner i need to be able
+    to understand how to keep my backlog in as good a shape as possible to
+    be able to impress all my friends at work and have them awe my skills.
+
+    * [X] Write some kind of example-based documentation
+    * [X] Make sure there are as few spelling errors as possible
+    * [X] Try it out on my friends
+
+    DoD: The bltools documentation shall explain how to write stories in a
+         good, example-based way with as few spelling errors as possible.
+
+As simple as that... :) The ``bltools`` only care about the TODO/DONE row and
+the STARTDATE/DEADLINE-row to build all the information for you, regarding the
+burn-down data and velocity calculations.
 
 Statistics parser - blsum
 -------------------------
