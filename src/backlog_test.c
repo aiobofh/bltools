@@ -224,6 +224,31 @@ test(backlog_read_shall_return_6_if_a_done_story_has_no_interval) {
   fgets_calls = 0;
 }
 
+void story_init_stub_with_done_and_has_interval(int story, story_t* s,
+                                               const char* str1,
+                                               const char* str2) {
+  story = story;
+  str1 = str1;
+  str2 = str2;
+  s->status = STATUS_DONE;
+  s->estimate_type = ESTIMATE_POINTS;
+  s->started.year = 2017;
+}
+
+test(backlog_read_shall_return_0_if_a_done_story_has_interval) {
+  fgets_calls = 0;
+  cutest_mock.fopen.retval = (FILE*)1;
+  cutest_mock.fgets.func = fgets_stub_incorrect_done;
+  cutest_mock.feof.func = feof_stub_correct;
+  cutest_mock.is_story.retval = 1;
+  cutest_mock.story_init.func = story_init_stub_with_done_and_has_interval;
+  mute_stderr();
+  int retval = backlog_read("bogusfile", NULL);
+  unmute_stderr();
+  assert_eq(0, retval);
+  fgets_calls = 0;
+}
+
 void story_init_stub_with_todo(int story, story_t* s,
                                const char* str1,
                                const char* str2) {

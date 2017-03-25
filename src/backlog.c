@@ -30,6 +30,9 @@ int backlog_read(const char* filename, story_row_cb_t story_row_cb) {
   while (0 == feof(fd)) {
     char buf1[2048];
     char *b1 = fgets(buf1, sizeof(buf1), fd);
+
+    int starts_with_asterisk_and_space = ('*' == buf1[0]) & (' ' == buf1[1]);
+
     if (NULL == b1) {
       if (feof(fd)) {
         break;
@@ -38,7 +41,7 @@ int backlog_read(const char* filename, story_row_cb_t story_row_cb) {
       retval = 3;
       break;
     }
-    else if (('*' == buf1[0]) && (' ' == buf1[1])) {
+    else if (starts_with_asterisk_and_space) { /* Quick filter */
       if (0 == is_story(buf1)) {
         fprintf(stderr,
                 "ERROR: %s:%d: Expected a correctly formatted story:\n"
