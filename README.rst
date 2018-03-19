@@ -10,6 +10,25 @@ could look like. There is a Makefile there to produce all the artifacts needed
 for valocity calculation, sprint-burn-down and prognosis of work left in the
 project, along with ways to make printable story cards for your sprint backlog.
 
+Example outputs
+---------------
+
+From console with a nicely crafted Makefile or wrapper, you can do this:
+
+..image:: velocity_ascii.png
+
+And this:
+
+..image:: sprint_ascii.png
+
+Or if you want to publish the same result as images:
+
+..image:: velocity.png
+..image:: sprint.png
+
+More about the bltools
+----------------------
+
 This set of tools came into existence because of the *super* easy-to-use
 Emacs Org-Mode format for keeping track of task-lists. If you want to study
 the Org-Mode in further detail than what this README describes please check
