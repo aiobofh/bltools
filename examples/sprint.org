@@ -1,0 +1,4 @@
+* TODO 00 It shall be possible to store stories in Emacs Org-Mode format
+
+  As a software developer I need my stories in a very easy to use format,
+  like Emacs Org-Mode to make my agile mindset easier to realize.

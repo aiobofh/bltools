@@ -1,0 +1,9 @@
+* TODO 01-20 It shall be possible to make fuzzy estimate ranges of a story
+
+  As a product owner I want to be able to keep stories estimated even if
+  they are not well defined yet.
+
+* TODO 03 It shall be possible to have accurate estimates of a story
+
+  As a product owner I need to be able to have single (and accurate)
+  estimates of stories in the backlog as the stories grow more defined.

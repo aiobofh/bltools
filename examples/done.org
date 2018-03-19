@@ -1,0 +1,13 @@
+* DONE 05 It shall be possible to toggle stories to DONE to track progress
+  SCHEDULED: <2017-01-03> DEADLINE: <2017-01-05>
+
+  As a product owner I need to be able to track story progress and to be
+  able to calculate velocity over time.
+
+  * The SCHEDULED Emacs Org-Mode tag is the date when the story was started.
+  * The DEADLINE Emacs Org-Mode tag is the date when the story was done.
+
+  This is actually MANDATORY to be able to consider a story to be done.
+
+* DONE 06 Another story to place in second sprint to verify blvelocity
+  SCHEDULED: <2017-01-09> DEADLINE: <2017-01-10>

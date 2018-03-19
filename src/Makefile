@@ -7,19 +7,17 @@ export Q
 all:
 	$(Q)export Q="${Q}"; \
 	export MAKEFLAGS="${MAKEFLAGS}";\
-	${MAKE} -s cutest && \
-	${MAKE} -s check && \
 	${MAKE} -s blcheck && \
 	${MAKE} -s blsum && \
 	${MAKE} -s blsprints && \
 	${MAKE} -s blburn && \
 	${MAKE} -s blvelocity
 
-cutest:
-	$(Q)git clone "https://github.com/aiobofh/cutest.git" -q
+#cutest:
+#	$(Q)git clone -b v1.0.3 "https://github.com/aiobofh/cutest.git" -q
 
--include cutest/src/cutest.mk
--include cutest/src/coverage.mk
+#-include cutest/src/cutest.mk
+#-include cutest/src/coverage.mk
 
 blcheck: blcheck.c date.c story.c backlog.c
 	$(CC) -o $@ $^ -O2

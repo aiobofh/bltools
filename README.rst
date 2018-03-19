@@ -5,6 +5,11 @@ Emacs Org-Mode text-file Scrum backlog tools. This project will provide a few
 simple and quick tools to summarize backlog points, done points, and manage
 team velocity.
 
+First of all, check the examples-folder for a good view on what your backlog
+could look like. There is a Makefile there to produce all the artifacts needed
+for valocity calculation, sprint-burn-down and prognosis of work left in the
+project, along with ways to make printable story cards for your sprint backlog.
+
 This set of tools came into existence because of the *super* easy-to-use
 Emacs Org-Mode format for keeping track of task-lists. If you want to study
 the Org-Mode in further detail than what this README describes please check

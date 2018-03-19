@@ -3,6 +3,8 @@
 
 #include "cutest.h"
 
+#define mock cutest_mock(NAME) cutest_mock.NAME
+
 test(interval_read_shall_get_the_current_position_of_the_file_correctly) {
   interval_read((char*)1234, (FILE*)5678); /* Function to test */
 
