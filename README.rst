@@ -15,16 +15,16 @@ Example outputs
 
 From console with a nicely crafted Makefile or wrapper, you can do this:
 
-..image:: velocity_ascii.png
+.. image:: velocity_ascii.png
 
 And this:
 
-..image:: sprint_ascii.png
+.. image:: sprint_ascii.png
 
 Or if you want to publish the same result as images:
 
-..image:: velocity.png
-..image:: sprint.png
+.. image:: velocity.png
+.. image:: sprint.png
 
 More about the bltools
 ----------------------
