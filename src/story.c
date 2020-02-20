@@ -180,66 +180,6 @@ void get_slogan(char* dest, int estimate_range, int slogan_length, const char* s
   dest[slogan_length] = '\0';
 }
 
-static int has_tags(int orgmode_todo, const char* str) {
-  size_t len;
-
-  /* It must be an org-mode item */
-  if (1 != orgmode_todo) {
-    return 0;
-  }
-
-  /* And have a string */
-  if (NULL == str) {
-    return 0;
-  }
-
-  len = strlen(str) - 1;
-
-  /* A row with org-mode tags must end with a ':' */
-  if (':' != str[len]) {
-    return 0;
-  }
-
-  /* .. And have a single word, prefixed by the first ':' */
-  while (len-- > 0) {
-    if (' ' == str[len]) {
-      return 0;
-    }
-    if (':' == str[len]) {
-      break;
-    }
-  }
-
-  return 1;
-}
-
-static int count_tags(int tags, const char* str) {
-  int cnt = 0;
-  size_t len;
-
-  if (1 != tags) {
-    return 0;
-  }
-
-  if (NULL == str) {
-    return 0;
-  }
-
-  len = strlen(str) - 1;
-
-  /* Every tag must start, and end with ':' at the end of the row */
-  while (len-- > 0) {
-    if (' ' == str[len]) {
-      break;
-    }
-    if (':' == str[len]) {
-      cnt++;
-    }
-  }
-
-  return cnt;
-}
-
 static int is_date_formatted(const char* s) {
   size_t pos = 0;
 
@@ -320,7 +260,7 @@ int is_story(const char* str) {
 
 static status_t get_status(int story, const char* str) {
   assert(1 == story && "is_story() must have returned 1 before calling");
-  story = story;
+  (void)story;
   if (0 == strncmp(&str[2], "TODO", 4)) {
     return STATUS_TODO;
   }
@@ -329,13 +269,13 @@ static status_t get_status(int story, const char* str) {
 
 static int get_estimate(int estimate, const char* str) {
   assert(1 == estimate && "had_estimate() must have returned 1 before calling");
-  estimate = estimate;
+  (void)estimate;
   return (str[7] - '0') * 10 + (str[8] - '0');
 }
 
 static int get_max_estimate(int estimate_range, const char* str) {
   assert(1 == estimate_range && "had_estimate_range() must have returned 1 before calling");
-  estimate_range = estimate_range;
+  (void)estimate_range;
   return (str[10] - '0') * 10 + (str[11] - '0');
 }
 

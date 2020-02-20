@@ -1,4 +1,10 @@
-#include "cutest.h"
+#include <time.h>
+
+#include <tarsio.h>
+#include "date.h"
+#include "date_data.h"
+
+#define m tarsio_mock
 
 /*
  * is_date()
@@ -53,9 +59,9 @@ test(long2date_shall_convert_a_long_integer_to_a_date) {
 test(dateadd_shall_add_a_day_to_the_input_date_at_month_end) {
   date_t date;
   date.year = 2017; date.month = 2; date.day = 28;
-  cutest_mock.bzero.func = bzero;
-  cutest_mock.mktime.func = mktime;
-  cutest_mock.gmtime.func = gmtime;
+  m.bzero.func = bzero;
+  m.mktime.func = mktime;
+  m.gmtime.func = gmtime;
   dateadd(&date);
   assert_eq(2017, date.year);
   assert_eq(3, date.month);
@@ -64,9 +70,9 @@ test(dateadd_shall_add_a_day_to_the_input_date_at_month_end) {
 
 test(dateadd_shall_add_a_day_to_the_input_date_at_year_end) {
   date_t date;
-  cutest_mock.bzero.func = bzero;
-  cutest_mock.mktime.func = mktime;
-  cutest_mock.gmtime.func = gmtime;
+  m.bzero.func = bzero;
+  m.mktime.func = mktime;
+  m.gmtime.func = gmtime;
   date.year = 2017; date.month = 12; date.day = 31;
   dateadd(&date);
   assert_eq(2018, date.year);
@@ -81,7 +87,7 @@ test(dateadd_shall_add_a_day_to_the_input_date_at_year_end) {
   char shortname[3] = {0, 0, 0};     \
   date_t date;                       \
   struct tm tm;                      \
-  cutest_mock.gmtime.retval = &tm;   \
+  m.gmtime.retval = &tm;   \
   tm.tm_wday = WDAY
 
 test(date2shortname_shall_set_destination_to_Mo_if_date_is_a_monday) {

@@ -1,44 +1,46 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "cutest.h"
+#include <tarsio.h>
+#include "backlog.h"
+#include "backlog_data.h"
 
-#define mock cutest_mock(NAME) cutest_mock.NAME
+#define m tarsio_mock
 
 test(interval_read_shall_get_the_current_position_of_the_file_correctly) {
   interval_read((char*)1234, (FILE*)5678); /* Function to test */
 
-  assert_eq(1, cutest_mock.fgetpos.call_count);
-  assert_eq((FILE*)5678, cutest_mock.fgetpos.args.arg0);
+  assert_eq(1, m.fgetpos.call_count);
+  assert_eq((FILE*)5678, m.fgetpos.args.arg0);
 }
 
 test(interval_read_shall_get_one_line_from_the_file) {
   interval_read((char*)1234, (FILE*)5678); /* Function to test */
 
-  assert_eq(1, cutest_mock.fgets.call_count);
-  assert_eq((FILE*)5678, cutest_mock.fgets.args.arg2);
+  assert_eq(1, m.fgets.call_count);
+  assert_eq((FILE*)5678, m.fgets.args.arg2);
 }
 
 test(interval_read_shall_copy_the_file_row_to_dst_if_file_could_be_read) {
-  cutest_mock.fgets.retval = (char*)4321;
+  m.fgets.retval = (char*)4321;
 
   interval_read((char*)1234, (FILE*)5678); /* Function to test */
 
-  assert_eq(1, cutest_mock.strcpy.call_count);
-  assert_eq((char*)1234, cutest_mock.strcpy.args.arg0);
-  assert_eq((char*)4321, cutest_mock.strcpy.args.arg1);
+  assert_eq(1, m.strcpy.call_count);
+  assert_eq((char*)1234, m.strcpy.args.arg0);
+  assert_eq((char*)4321, m.strcpy.args.arg1);
 }
 
 test(interval_read_shall_reset_the_file_position_to_the_one_read_earlier) {
   interval_read((char*)1234, (FILE*)5678); /* Function to test */
 
-  assert_eq(1, cutest_mock.fsetpos.call_count);
-  assert_eq((FILE*)5678, cutest_mock.fsetpos.args.arg0);
-  assert_eq(cutest_mock.fgetpos.args.arg1, cutest_mock.fsetpos.args.arg1);
+  assert_eq(1, m.fsetpos.call_count);
+  assert_eq((FILE*)5678, m.fsetpos.args.arg0);
+  assert_eq(m.fgetpos.args.arg1, m.fsetpos.args.arg1);
 }
 
 test(backlog_read_shall_return_2_if_the_file_can_not_be_opened) {
-  cutest_mock.fopen.retval = NULL;
+  m.fopen.retval = NULL;
 
   int retval = backlog_read("bogusfile", NULL); /* Function to test */
 
@@ -46,24 +48,24 @@ test(backlog_read_shall_return_2_if_the_file_can_not_be_opened) {
 }
 
 test(backlog_read_shall_open_the_file_specified_as_argument_for_reading) {
-  cutest_mock.fopen.retval = (FILE*)1;
-  cutest_mock.feof.retval = 1;
+  m.fopen.retval = (FILE*)1;
+  m.feof.retval = 1;
 
   int retval = backlog_read("bogusfile", NULL); /* Function to test */
 
   assert_eq(0, retval);
-  assert_eq(0 == strcmp(cutest_mock.fopen.args.arg0, "bogusfile"));
-  assert_eq(0 == strcmp(cutest_mock.fopen.args.arg1, "r"));
+  assert_eq(0, strcmp(m.fopen.args.arg0, "bogusfile"));
+  assert_eq(0, strcmp(m.fopen.args.arg1, "r"));
 }
 
 test(backlog_read_shall_close_the_file_specified_as_argument_for_reading) {
-  cutest_mock.fopen.retval = (FILE*)123;
-  cutest_mock.feof.retval = 1;
+  m.fopen.retval = (FILE*)123;
+  m.feof.retval = 1;
 
   int retval = backlog_read("bogusfile", NULL); /* Function to test */
 
   assert_eq(0, retval);
-  assert_eq((FILE*)123, cutest_mock.fclose.args.arg0);
+  assert_eq((FILE*)123, m.fclose.args.arg0);
 }
 
 int fgets_calls;
@@ -88,9 +90,9 @@ int feof_stub(FILE *stream) {
 
 test(backlog_read_shall_fgets_every_row_of_the_file) {
   fgets_calls = 0;
-  cutest_mock.fopen.retval = (FILE*)1;
-  cutest_mock.fgets.func = fgets_stub;
-  cutest_mock.feof.func = feof_stub;
+  m.fopen.retval = (FILE*)1;
+  m.fgets.func = fgets_stub;
+  m.feof.func = feof_stub;
 
   int retval = backlog_read("bogusfile", NULL); /* Function to test */
 
@@ -100,8 +102,8 @@ test(backlog_read_shall_fgets_every_row_of_the_file) {
 }
 
 test(backlog_read_shall_return_3_if_fgets_fails) {
-  cutest_mock.fopen.retval = (FILE*)1;
-  cutest_mock.fgets.retval = (char*)NULL;
+  m.fopen.retval = (FILE*)1;
+  m.fgets.retval = (char*)NULL;
 
   int retval = backlog_read("bogusfile", NULL); /* Function to test */
 
@@ -126,10 +128,11 @@ int feof_stub_malformed(FILE *stream) {
 
 test(backlog_read_shall_return_4_if_any_bullet_row_is_malformed) {
   fgets_calls = 0;
-  cutest_mock.fopen.retval = (FILE*)1;
-  cutest_mock.fgets.func = fgets_stub_malformed;
-  cutest_mock.feof.func = feof_stub_malformed;
-  cutest_mock.is_story.retval = 0;
+  m.fopen.retval = (FILE*)1;
+  m.fgets.func = fgets_stub_malformed;
+  m.feof.func = feof_stub_malformed;
+  m.classify_as_a_story.func = classify_as_a_story; /* Use the real one */
+  m.is_story.retval = 0;
 
   int retval = backlog_read("bogusfile", NULL); /* Function to test */
 
@@ -181,11 +184,14 @@ void story_init_stub_with_done_and_range(int story, story_t* s,
 
 test(backlog_read_shall_return_5_if_a_done_story_has_an_estimate_range) {
   fgets_calls = 0;
-  cutest_mock.fopen.retval = (FILE*)1;
-  cutest_mock.fgets.func = fgets_stub_incorrect_done;
-  cutest_mock.feof.func = feof_stub_correct;
-  cutest_mock.is_story.retval = 1;
-  cutest_mock.story_init.func = story_init_stub_with_done_and_range;
+  m.fopen.retval = (FILE*)1;
+  m.fgets.func = fgets_stub_incorrect_done;
+  m.feof.func = feof_stub_correct;
+  m.is_story.retval = 1;
+  m.classify_as_a_story.func = classify_as_a_story; /* Use the real one */
+  m.is_done_story_correctly_formatted.func =
+    is_done_story_correctly_formatted; /* Use the real one */
+  m.story_init.func = story_init_stub_with_done_and_range;
 
   int retval = backlog_read("bogusfile", NULL); /* Function to test */
 
@@ -195,10 +201,10 @@ test(backlog_read_shall_return_5_if_a_done_story_has_an_estimate_range) {
 
 #define BACKLOG_READ_DONE_INTERVAL_FIXTURE             \
   fgets_calls = 0;                                      \
-  cutest_mock.fopen.retval = (FILE*)1;                  \
-  cutest_mock.fgets.func = fgets_stub_incorrect_done;   \
-  cutest_mock.feof.func = feof_stub_correct;            \
-  cutest_mock.is_story.retval = 1
+  m.fopen.retval = (FILE*)1;                  \
+  m.fgets.func = fgets_stub_incorrect_done;   \
+  m.feof.func = feof_stub_correct;            \
+  m.is_story.retval = 1
 
 void story_init_stub_with_done_and_no_interval(int story, story_t* s,
                                                const char* str1,
@@ -209,7 +215,10 @@ void story_init_stub_with_done_and_no_interval(int story, story_t* s,
 
 test(backlog_read_shall_return_6_if_a_done_story_has_no_interval) {
   BACKLOG_READ_DONE_INTERVAL_FIXTURE;
-  cutest_mock.story_init.func = story_init_stub_with_done_and_no_interval;
+  m.classify_as_a_story.func = classify_as_a_story; /* Use the real one */
+  m.is_done_story_correctly_formatted.func =
+    is_done_story_correctly_formatted; /* Use the real one */
+  m.story_init.func = story_init_stub_with_done_and_no_interval;
 
   int retval = backlog_read("bogusfile", NULL); /* Function to test */
 
@@ -226,7 +235,7 @@ void story_init_stub_with_done_and_has_interval(int story, story_t* s,
 
 test(backlog_read_shall_return_0_if_a_done_story_has_interval) {
   BACKLOG_READ_DONE_INTERVAL_FIXTURE;
-  cutest_mock.story_init.func = story_init_stub_with_done_and_has_interval;
+  m.story_init.func = story_init_stub_with_done_and_has_interval;
 
   int retval = backlog_read("bogusfile", NULL); /* Function to test */
 
@@ -246,14 +255,14 @@ void story_init_stub_with_todo(int story, story_t* s,
 
 #define BACKLOG_READ_NORMAL_OPERATIONS_FIXTURE \
   fgets_calls = 0;                             \
-  cutest_mock.fopen.retval = (FILE*)1;         \
-  cutest_mock.fgets.func = fgets_stub_correct; \
-  cutest_mock.feof.func = feof_stub_correct;   \
-  cutest_mock.is_story.retval = 1
+  m.fopen.retval = (FILE*)1;         \
+  m.fgets.func = fgets_stub_correct; \
+  m.feof.func = feof_stub_correct;   \
+  m.is_story.retval = 1
 
 test(backlog_read_shall_return_0_no_row_is_malformed) {
   BACKLOG_READ_NORMAL_OPERATIONS_FIXTURE;
-  cutest_mock.story_init.func = story_init_stub_with_todo;
+  m.story_init.func = story_init_stub_with_todo;
 
   int retval = backlog_read("bogusfile", NULL); /* Function to test */
 
@@ -282,7 +291,7 @@ void story_init_stub(int story, story_t* s, const char* str1,
 test(backlog_read_shall_call_the_provided_callback_function_if_row_is_ok) {
   BACKLOG_READ_NORMAL_OPERATIONS_FIXTURE;
 
-  cutest_mock.story_init.func = story_init_stub;
+  m.story_init.func = story_init_stub;
 
   callback_calls = 0;
   callback_story = 0;

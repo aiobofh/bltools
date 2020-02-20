@@ -1,4 +1,10 @@
-#include "cutest.h"
+#include <time.h>
+
+#include <tarsio.h>
+#include "sprint.h"
+#include "sprint_data.h"
+
+#define m tarsio_mock
 
 /*
  * has_date()
@@ -6,17 +12,17 @@
 test(has_date_shall_call_is_date_with_correct_arguments_return_0_on_fail) {
   /* By default is_date mock returns 0 = fail */
   assert_eq(0, has_date((char*)1234));
-  assert_eq(1, cutest_mock.is_date.call_count);
-  assert_eq((char*)1234, cutest_mock.is_date.args.arg0);
+  assert_eq(1, m.is_date.call_count);
+  assert_eq((char*)1234, m.is_date.args.arg0);
 }
 
 test(has_date_shall_return_0_date_does_not_end_with_space) {
-  cutest_mock.is_date.retval = 1;
+  m.is_date.retval = 1;
   assert_eq(0, has_date("yyyy-mm-ddd"));
 }
 
 test(has_date_shall_return_1_date_does_end_with_space) {
-  cutest_mock.is_date.retval = 1;
+  m.is_date.retval = 1;
   assert_eq(1, has_date("yyyy-mm-dd "));
 }
 
@@ -24,16 +30,16 @@ test(has_date_shall_return_1_date_does_end_with_space) {
  * has_dates()
  */
 test(has_dates_shall_call_has_date_for_start_date_with_correct_argument) {
-  cutest_mock.has_date.retval = 0;
+  m.has_date.retval = 0;
   (void)has_dates((char*)1234);
-  assert_eq((char*)1234, cutest_mock.has_date.args.arg0)
+  assert_eq((char*)1234, m.has_date.args.arg0);
 }
 
 test(has_dates_shall_call_has_date_for_end_date_with_correct_argument) {
-  cutest_mock.has_date.retval = 1;
+  m.has_date.retval = 1;
   (void)has_dates((char*)1234);
   assert_eq((char*)(1234 + strlen("yyyy-mm-dd ")),
-            cutest_mock.has_date.args.arg0)
+            m.has_date.args.arg0);
 }
 
 static int has_date_stub_no_start_but_end(const char* str) {
@@ -51,17 +57,17 @@ static int has_date_stub_no_end_but_start(const char* str) {
 }
 
 test(has_dates_shall_return_0_if_the_sprint_has_no_start_but_end_date) {
-  cutest_mock.has_date.func = has_date_stub_no_start_but_end;
+  m.has_date.func = has_date_stub_no_start_but_end;
   assert_eq(0, has_dates((char*)1234));
 }
 
 test(has_dates_shall_return_0_if_the_sprint_has_no_end_but_start_date) {
-  cutest_mock.has_date.func = has_date_stub_no_end_but_start;
+  m.has_date.func = has_date_stub_no_end_but_start;
   assert_eq(0, has_dates((char*)1234));
 }
 
 test(has_dates_shall_return_1_if_the_sprint_has_both_start_and_end_dates) {
-  cutest_mock.has_date.retval = 1;
+  m.has_date.retval = 1;
   assert_eq(1, has_dates((char*)1234));
 }
 
@@ -69,7 +75,7 @@ test(has_dates_shall_return_1_if_the_sprint_has_both_start_and_end_dates) {
  * has_schedule()
  */
 test(has_schedule_shall_return_0_if_the_sprint_has_no_schedule_after_dates) {
-  cutest_mock.strlen.func = strlen;
+  m.strlen.func = strlen;
   assert_eq(0, has_schedule("yyyy-mm-dd yyyy-mm-dd")); /* Too short */
   assert_eq(0, has_schedule("yyyy-mm-dd yyyy-mm-dd ")); /* Too short */
   assert_eq(0, has_schedule("yyyy-mm-dd yyyy-mm-dd MoTu")); /* Too short */
@@ -77,8 +83,8 @@ test(has_schedule_shall_return_0_if_the_sprint_has_no_schedule_after_dates) {
 }
 
 test(has_schedule_shall_return_1_if_the_sprint_has_schedule_after_dates) {
-  cutest_mock.strlen.func = strlen;
-  cutest_mock.is_weekday_short.func = is_weekday_short;
+  m.strlen.func = strlen;
+  m.is_weekday_short.func = is_weekday_short;
   assert_eq(1, has_schedule("yyyy-mm-dd yyyy-mm-dd MoTuWeThFr "));
   assert_eq(1, has_schedule("yyyy-mm-dd yyyy-mm-dd TuWeFr "));
   assert_eq(1, has_schedule("yyyy-mm-dd yyyy-mm-dd FrMoTuWe "));
@@ -88,8 +94,8 @@ test(has_schedule_shall_return_1_if_the_sprint_has_schedule_after_dates) {
  * has_commitment()
  */
 test(has_commitment_shall_return_0_if_no_commitment_is_found) {
-  cutest_mock.strlen.func = strlen;
-  cutest_mock.skip_schedule_length.func = skip_schedule_length;
+  m.strlen.func = strlen;
+  m.skip_schedule_length.func = skip_schedule_length;
 
   assert_eq(0, has_commitment("yyyy-mm-dd yyyy-mm-dd DdDd ")); /* Too short */
   assert_eq(0, has_commitment("yyyy-mm-dd yyyy-mm-dd DdDd")); /* Too short */
@@ -98,8 +104,8 @@ test(has_commitment_shall_return_0_if_no_commitment_is_found) {
 }
 
 test(has_commitment_shall_return_1_if_commitment_is_found) {
-  cutest_mock.strlen.func = strlen;
-  cutest_mock.skip_schedule_length.func = skip_schedule_length;
+  m.strlen.func = strlen;
+  m.skip_schedule_length.func = skip_schedule_length;
   assert_eq(1, has_commitment("yyyy-mm-dd yyyy-mm-dd DdDdDdDd 13 "));
 }
 
@@ -112,22 +118,22 @@ test(has_id_shall_return_0_if_no_id_is_found) {
 }
 
 test(has_id_shall_return_0_if_id_contains_other_than_alpha_numerics) {
-  cutest_mock.strlen.func = strlen;
-  cutest_mock.skip_schedule_length.func = skip_schedule_length;
+  m.strlen.func = strlen;
+  m.skip_schedule_length.func = skip_schedule_length;
 
   assert_eq(0, has_id("yyyy-mm-dd yyyy-mm-dd Dd nn / b c d"));
   assert_eq(0, has_id("yyyy-mm-dd yyyy-mm-dd Dd nn 1?3 123"));
 }
 
 test(has_id_shall_return_1_if_id_is_found) {
-  cutest_mock.strlen.func = strlen;
-  cutest_mock.skip_schedule_length.func = skip_schedule_length;
+  m.strlen.func = strlen;
+  m.skip_schedule_length.func = skip_schedule_length;
   assert_eq(1, has_id("yyyy-mm-dd yyyy-mm-dd Dd nn Sprint-102_a"));
 }
 
 test(has_id_shall_return_1_if_id_is_found_in_front_of_a_title) {
-  cutest_mock.strlen.func = strlen;
-  cutest_mock.skip_schedule_length.func = skip_schedule_length;
+  m.strlen.func = strlen;
+  m.skip_schedule_length.func = skip_schedule_length;
   assert_eq(1, has_id("yyyy-mm-dd yyyy-mm-dd Dd nn Sprint-102_a Title A"));
 }
 
@@ -147,9 +153,9 @@ test(get_date_shall_convert_date_correclty) {
  */
 test(get_start_shall_call_get_date_correclty) {
   get_start_date((date_t*)1234, (char*)5678);
-  assert_eq(1, cutest_mock.get_date.call_count);
-  assert_eq((date_t*)1234, cutest_mock.get_date.args.arg0);
-  assert_eq((char*)5678, cutest_mock.get_date.args.arg1);
+  assert_eq(1, m.get_date.call_count);
+  assert_eq((date_t*)1234, m.get_date.args.arg0);
+  assert_eq((char*)5678, m.get_date.args.arg1);
 }
 
 /*
@@ -157,18 +163,18 @@ test(get_start_shall_call_get_date_correclty) {
  */
 test(get_end_date_shall_convert_date_correclty) {
   get_end_date((date_t*)1234, (char*)5678);
-  assert_eq(1, cutest_mock.get_date.call_count);
-  assert_eq((date_t*)1234, cutest_mock.get_date.args.arg0);
+  assert_eq(1, m.get_date.call_count);
+  assert_eq((date_t*)1234, m.get_date.args.arg0);
   assert_eq((char*)5678 + strlen("yyyy-mm-dd "),
-            cutest_mock.get_date.args.arg1);
+            m.get_date.args.arg1);
 }
 
 /*
  * get_days_in_schedule()
  */
 test(get_days_in_chedule_shall_return_the_number_of_scheduled_days) {
-  cutest_mock.strlen.func = strlen;
-  cutest_mock.is_weekday_short.func = is_weekday_short;
+  m.strlen.func = strlen;
+  m.is_weekday_short.func = is_weekday_short;
   assert_eq(1, get_days_in_schedule("yyyy-mm-dd yyyy-mm-dd Mo "));
   assert_eq(5, get_days_in_schedule("yyyy-mm-dd yyyy-mm-dd MoTuWeThFr "));
   assert_eq(2, get_days_in_schedule("yyyy-mm-dd yyyy-mm-dd FrMo "));
@@ -224,12 +230,12 @@ test(get_schedule_shall_return_a_list_of_dates) {
   date_t date[cnt];
   date_t start = {2017, 02, 28};
 
-  cutest_mock.strlen.func = strlen;
-  cutest_mock.date2tm.func = date2tm;
-  cutest_mock.mktime.func = mktime;
-  cutest_mock.gmtime.func = gmtime;
-  cutest_mock.get_wday.func = get_wday;
-  cutest_mock.is_weekday_short.func = is_weekday_short;
+  m.strlen.func = strlen;
+  m.date2tm.func = date2tm;
+  m.mktime.func = mktime;
+  m.gmtime.func = gmtime;
+  m.get_wday.func = get_wday;
+  m.is_weekday_short.func = is_weekday_short;
 
   get_schedule(&start, date, "yyyy-mm-dd yyyy-mm-dd TuWeThSaSuMoSu ");
 
@@ -292,71 +298,71 @@ test(get_id_length_shall_return_the_length_of_the_id_trimmed_from_ws) {
  */
 test(get_id_shall_copy_the_id_from_a_sprint_to_dest) {
   char dest[32];
-  cutest_mock.memcpy.func = memcpy;
+  m.memcpy.func = memcpy;
   get_id(dest, 17, "yyyy-mm-dd yyyy-mm-dd DdDd nn Title-title-title");
-  assert_eq(0 == strcmp(dest, "Title-title-title"));
+  assert_eq(0, strcmp(dest, "Title-title-title"));
 }
 
 /*
  * is_sprint()
  */
 test(is_sprint_should_rely_on_helpers_since_they_are_already_tested) {
-  cutest_mock.has_dates.retval = 1;
-  cutest_mock.has_schedule.retval = 1;
-  cutest_mock.has_commitment.retval = 1;
-  cutest_mock.has_id.retval = 1;
+  m.has_dates.retval = 1;
+  m.has_schedule.retval = 1;
+  m.has_commitment.retval = 1;
+  m.has_id.retval = 1;
 
   (void)is_sprint((char*)1234);
 
   /* has_dates() */
-  assert_eq(1, cutest_mock.has_dates.call_count);
-  assert_eq((char*)1234, cutest_mock.has_dates.args.arg0);
+  assert_eq(1, m.has_dates.call_count);
+  assert_eq((char*)1234, m.has_dates.args.arg0);
 
   /* has_schedule() */
-  assert_eq(1, cutest_mock.has_schedule.call_count);
-  assert_eq((char*)1234, cutest_mock.has_schedule.args.arg0);
+  assert_eq(1, m.has_schedule.call_count);
+  assert_eq((char*)1234, m.has_schedule.args.arg0);
 
   /* has_commitment() */
-  assert_eq(1, cutest_mock.has_commitment.call_count);
-  assert_eq((char*)1234, cutest_mock.has_commitment.args.arg0);
+  assert_eq(1, m.has_commitment.call_count);
+  assert_eq((char*)1234, m.has_commitment.args.arg0);
 
   /* has_id() */
-  assert_eq(1, cutest_mock.has_id.call_count);
-  assert_eq((char*)1234, cutest_mock.has_id.args.arg0);
+  assert_eq(1, m.has_id.call_count);
+  assert_eq((char*)1234, m.has_id.args.arg0);
 }
 
 test(is_sprint_should_return_0_if_has_dates_fails) {
-  cutest_mock.has_dates.retval = 0;
-  cutest_mock.has_schedule.retval = 1;
-  cutest_mock.has_commitment.retval = 1;
-  cutest_mock.has_id.retval = 1;
+  m.has_dates.retval = 0;
+  m.has_schedule.retval = 1;
+  m.has_commitment.retval = 1;
+  m.has_id.retval = 1;
 
   assert_eq(0, is_sprint((char*)1234));
 }
 
 test(is_sprint_should_return_0_if_has_schedule_fails) {
-  cutest_mock.has_dates.retval = 1;
-  cutest_mock.has_schedule.retval = 0;
-  cutest_mock.has_commitment.retval = 1;
-  cutest_mock.has_id.retval = 1;
+  m.has_dates.retval = 1;
+  m.has_schedule.retval = 0;
+  m.has_commitment.retval = 1;
+  m.has_id.retval = 1;
 
   assert_eq(0, is_sprint((char*)1234));
 }
 
 test(is_sprint_should_return_0_if_has_commitment_fails) {
-  cutest_mock.has_dates.retval = 1;
-  cutest_mock.has_schedule.retval = 1;
-  cutest_mock.has_commitment.retval = 0;
-  cutest_mock.has_id.retval = 1;
+  m.has_dates.retval = 1;
+  m.has_schedule.retval = 1;
+  m.has_commitment.retval = 0;
+  m.has_id.retval = 1;
 
   assert_eq(0, is_sprint((char*)1234));
 }
 
 test(is_sprint_should_return_0_if_has_id_fails) {
-  cutest_mock.has_dates.retval = 1;
-  cutest_mock.has_schedule.retval = 1;
-  cutest_mock.has_commitment.retval = 1;
-  cutest_mock.has_id.retval = 0;
+  m.has_dates.retval = 1;
+  m.has_schedule.retval = 1;
+  m.has_commitment.retval = 1;
+  m.has_id.retval = 0;
 
   assert_eq(0, is_sprint((char*)1234));
 }
@@ -365,20 +371,20 @@ test(is_sprint_should_return_0_if_has_id_fails) {
 test(is_sprint_should_assess_sprints_correctly) {
   /* Integrate helpers by not mocking them */
   /* TODO: Remove these when module_test() macro is done in cutest. */
-  cutest_mock.is_date.retval = 1;
-  cutest_mock.strlen.func = strlen;
-  cutest_mock.is_weekday_short.func = is_weekday_short;
-  cutest_mock.skip_schedule_length.func = skip_schedule_length;
-  cutest_mock.has_date.func = has_date;
-  cutest_mock.has_dates.func = has_dates;
-  cutest_mock.has_schedule.func = has_schedule;
-  cutest_mock.has_id.func = has_id;
-  cutest_mock.has_commitment.func = has_commitment;
+  m.is_date.retval = 1;
+  m.strlen.func = strlen;
+  m.is_weekday_short.func = is_weekday_short;
+  m.skip_schedule_length.func = skip_schedule_length;
+  m.has_date.func = has_date;
+  m.has_dates.func = has_dates;
+  m.has_schedule.func = has_schedule;
+  m.has_id.func = has_id;
+  m.has_commitment.func = has_commitment;
 
   /* Top-level kick-the-tires test of is_story() */
   assert_eq(1, is_sprint("2017-01-01 2017-02-02 MoTuWe 13 201701"));
 
-  cutest_mock.is_date.retval = 0;
+  m.is_date.retval = 0;
 
   assert_eq(0, is_sprint("However, this is not"));
 }
@@ -388,16 +394,16 @@ test(is_sprint_should_assess_sprints_correctly) {
  */
 test(init_dates_shall_call_get_start_date_correctly) {
   init_dates((date_t*)1234, (date_t*)5678, (char*)8765);
-  assert_eq(1, cutest_mock.get_start_date.call_count);
-  assert_eq((date_t*)1234, cutest_mock.get_start_date.args.arg0);
-  assert_eq((char*)8765, cutest_mock.get_start_date.args.arg1);
+  assert_eq(1, m.get_start_date.call_count);
+  assert_eq((date_t*)1234, m.get_start_date.args.arg0);
+  assert_eq((char*)8765, m.get_start_date.args.arg1);
 }
 
 test(init_dates_shall_call_get_end_date_correctly) {
   init_dates((date_t*)1234, (date_t*)5678, (char*)8765);
-  assert_eq(1, cutest_mock.get_end_date.call_count);
-  assert_eq((date_t*)5678, cutest_mock.get_end_date.args.arg0);
-  assert_eq((char*)8765, cutest_mock.get_end_date.args.arg1);
+  assert_eq(1, m.get_end_date.call_count);
+  assert_eq((date_t*)5678, m.get_end_date.args.arg0);
+  assert_eq((char*)8765, m.get_end_date.args.arg1);
 }
 
 /*
@@ -407,39 +413,39 @@ test(init_schedule_shall_call_get_days_in_schedule_correctly) {
   date_t* schedule;
   int cnt;
 
-  cutest_mock.malloc.retval = (void*)8765; /* Avoid assert */
+  m.malloc.retval = (void*)8765; /* Avoid assert */
 
   init_schedule(&cnt, (date_t*)1234, &schedule, (char*)5678);
 
-  assert_eq(1, cutest_mock.get_days_in_schedule.call_count);
-  assert_eq((char*)5678, cutest_mock.get_days_in_schedule.args.arg0);
+  assert_eq(1, m.get_days_in_schedule.call_count);
+  assert_eq((char*)5678, m.get_days_in_schedule.args.arg0);
 }
 
 test(init_schedule_shall_call_malloc_correctly) {
   date_t* schedule;
   int cnt;
 
-  cutest_mock.get_days_in_schedule.retval = 4321;
-  cutest_mock.malloc.retval = (void*)8765; /* Avoid assert */
+  m.get_days_in_schedule.retval = 4321;
+  m.malloc.retval = (void*)8765; /* Avoid assert */
 
   init_schedule(&cnt, (date_t*)1234, &schedule, (char*)5678);
 
-  assert_eq(1, cutest_mock.malloc.call_count);
-  assert_eq(sizeof(date_t) * 4321, cutest_mock.malloc.args.arg0);
+  assert_eq(1, m.malloc.call_count);
+  assert_eq(sizeof(date_t) * 4321, m.malloc.args.arg0);
 }
 
 test(init_schedule_shall_call_get_schedule_correctly) {
   date_t* schedule;
   int cnt;
 
-  cutest_mock.malloc.retval = (void*)8765; /* Avoid assert */
+  m.malloc.retval = (void*)8765; /* Avoid assert */
 
   init_schedule(&cnt, (date_t*)1234, &schedule, (char*)5678);
 
-  assert_eq(1, cutest_mock.get_schedule.call_count);
-  assert_eq((date_t*)1234, cutest_mock.get_schedule.args.arg0);
-  assert_eq((date_t*)8765, cutest_mock.get_schedule.args.arg1);
-  assert_eq((char*)5678, cutest_mock.get_schedule.args.arg2);
+  assert_eq(1, m.get_schedule.call_count);
+  assert_eq((date_t*)1234, m.get_schedule.args.arg0);
+  assert_eq((date_t*)8765, m.get_schedule.args.arg1);
+  assert_eq((char*)5678, m.get_schedule.args.arg2);
 }
 
 /*
@@ -448,13 +454,13 @@ test(init_schedule_shall_call_get_schedule_correctly) {
 test(init_commitment_shall_call_get_commitment_correclty) {
   int commitment;
 
-  cutest_mock.get_commitment.retval = 1234;
+  m.get_commitment.retval = 1234;
 
   init_commitment(&commitment, (char*)5678);
 
-  assert_eq(1, cutest_mock.get_commitment.call_count);
-  assert_eq((char*)5678, cutest_mock.get_commitment.args.arg0);
-  assert_eq(1234, commitment)
+  assert_eq(1, m.get_commitment.call_count);
+  assert_eq((char*)5678, m.get_commitment.args.arg0);
+  assert_eq(1234, commitment);
 }
 
 /*
@@ -463,38 +469,38 @@ test(init_commitment_shall_call_get_commitment_correclty) {
 test(init_id_shall_call_get_id_length_correctly) {
   char* id;
 
-  cutest_mock.malloc.retval = (void*)4321; /* Avoid assert */
+  m.malloc.retval = (void*)4321; /* Avoid assert */
 
   init_id(&id, (char*)5678);
 
-  assert_eq(1, cutest_mock.get_id_length.call_count);
-  assert_eq((char*)5678, cutest_mock.get_id_length.args.arg0);
+  assert_eq(1, m.get_id_length.call_count);
+  assert_eq((char*)5678, m.get_id_length.args.arg0);
 }
 
 test(init_id_shall_call_malloc_correclty) {
   char* id;
 
-  cutest_mock.get_id_length.retval = 8765;
-  cutest_mock.malloc.retval = (void*)4321; /* Avoid assert */
+  m.get_id_length.retval = 8765;
+  m.malloc.retval = (void*)4321; /* Avoid assert */
 
   init_id(&id, (char*)5678);
 
-  assert_eq(1, cutest_mock.malloc.call_count);
-  assert_eq(8765 + 1 /* '\0' */, cutest_mock.malloc.args.arg0);
+  assert_eq(1, m.malloc.call_count);
+  assert_eq(8765 + 1 /* '\0' */, m.malloc.args.arg0);
 }
 
 test(init_id_shall_call_get_id_correclty) {
   char* id;
 
-  cutest_mock.get_id_length.retval = 8765;
-  cutest_mock.malloc.retval = (void*)4321; /* Avoid assert */
+  m.get_id_length.retval = 8765;
+  m.malloc.retval = (void*)4321; /* Avoid assert */
 
   init_id(&id, (char*)5678);
 
-  assert_eq(1, cutest_mock.get_id.call_count);
-  assert_eq(id, cutest_mock.get_id.args.arg0);
-  assert_eq(8765, cutest_mock.get_id.args.arg1);
-  assert_eq((char*)5678, cutest_mock.get_id.args.arg2);
+  assert_eq(1, m.get_id.call_count);
+  assert_eq(id, m.get_id.args.arg0);
+  assert_eq(8765, m.get_id.args.arg1);
+  assert_eq((char*)5678, m.get_id.args.arg2);
 }
 
 /*
@@ -504,39 +510,39 @@ test(sprint_init_shall_call_init_dates_correclty) {
   const char *str = "2017-01-01 2017-02-02 MoFr 03 Slogan";
   sprint_t sprint;
   sprint_init(&sprint, str);
-  assert_eq(1, cutest_mock.init_dates.call_count);
-  assert_eq(&sprint.start, cutest_mock.init_dates.args.arg0);
-  assert_eq(&sprint.end, cutest_mock.init_dates.args.arg1);
-  assert_eq(str, cutest_mock.init_dates.args.arg2);
+  assert_eq(1, m.init_dates.call_count);
+  assert_eq(&sprint.start, m.init_dates.args.arg0);
+  assert_eq(&sprint.end, m.init_dates.args.arg1);
+  assert_eq(str, m.init_dates.args.arg2);
 }
 
 test(sprint_init_shall_call_init_schedule_correclty) {
   const char *str = "2017-01-01 2017-02-02 MoFr 03 Slogan";
   sprint_t sprint;
   sprint_init(&sprint, str);
-  assert_eq(1, cutest_mock.init_schedule.call_count);
-  assert_eq(&sprint.schedule_cnt, cutest_mock.init_schedule.args.arg0);
-  assert_eq(&sprint.start, cutest_mock.init_schedule.args.arg1);
-  assert_eq(&sprint.schedule, cutest_mock.init_schedule.args.arg2);
-  assert_eq(str, cutest_mock.init_schedule.args.arg3);
+  assert_eq(1, m.init_schedule.call_count);
+  assert_eq(&sprint.schedule_cnt, m.init_schedule.args.arg0);
+  assert_eq(&sprint.start, m.init_schedule.args.arg1);
+  assert_eq(&sprint.schedule, m.init_schedule.args.arg2);
+  assert_eq(str, m.init_schedule.args.arg3);
 }
 
 test(sprint_init_shall_call_init_commitment_correclty) {
   const char *str = "2017-01-01 2017-02-02 MoFr 03 Slogan";
   sprint_t sprint;
   sprint_init(&sprint, str);
-  assert_eq(1, cutest_mock.init_commitment.call_count);
-  assert_eq(&sprint.commitment, cutest_mock.init_commitment.args.arg0);
-  assert_eq(str, cutest_mock.init_commitment.args.arg1);
+  assert_eq(1, m.init_commitment.call_count);
+  assert_eq(&sprint.commitment, m.init_commitment.args.arg0);
+  assert_eq(str, m.init_commitment.args.arg1);
 }
 
 test(sprint_init_shall_call_init_id_correclty) {
   const char *str = "2017-01-01 2017-02-02 MoFr 03 Slogan";
   sprint_t sprint;
   sprint_init(&sprint, str);
-  assert_eq(1, cutest_mock.init_id.call_count);
-  assert_eq(&sprint.id, cutest_mock.init_id.args.arg0);
-  assert_eq(str, cutest_mock.init_id.args.arg1);
+  assert_eq(1, m.init_id.call_count);
+  assert_eq(&sprint.id, m.init_id.args.arg0);
+  assert_eq(str, m.init_id.args.arg1);
 }
 
 /* TODO: Add a kick-the-tires-test for sprint_init without stubbed world */
@@ -547,8 +553,8 @@ test(sprint_init_shall_call_init_id_correclty) {
 test(cleanup_id_shall_free_the_memory_allocated_for_sprint_id_string) {
   char* id = (char*)1234;
   cleanup_id(&id);
-  assert_eq(1, cutest_mock.free.call_count);
-  assert_eq((char*)1234, cutest_mock.free.args.arg0);
+  assert_eq(1, m.free.call_count);
+  assert_eq((char*)1234, m.free.args.arg0);
 }
 
 /*
@@ -557,8 +563,8 @@ test(cleanup_id_shall_free_the_memory_allocated_for_sprint_id_string) {
 test(cleanup_shedule_shall_free_the_memory_allocated_for_sprint_schedule) {
   date_t* schedule = (date_t*)1234;
   cleanup_schedule(&schedule);
-  assert_eq(1, cutest_mock.free.call_count);
-  assert_eq((date_t*)1234, cutest_mock.free.args.arg0);
+  assert_eq(1, m.free.call_count);
+  assert_eq((date_t*)1234, m.free.args.arg0);
 }
 
 /*
@@ -567,15 +573,15 @@ test(cleanup_shedule_shall_free_the_memory_allocated_for_sprint_schedule) {
 test(sprint_cleanup_shall_call_cleanup_id_correctly) {
   sprint_t sprint;
   sprint_cleanup(&sprint);
-  assert_eq(1, cutest_mock.cleanup_id.call_count);
-  assert_eq(&sprint.id, cutest_mock.cleanup_id.args.arg0);
+  assert_eq(1, m.cleanup_id.call_count);
+  assert_eq(&sprint.id, m.cleanup_id.args.arg0);
 }
 
 test(sprint_cleanup_shall_call_cleanup_schedule_correctly) {
   sprint_t sprint;
   sprint_cleanup(&sprint);
-  assert_eq(1, cutest_mock.cleanup_schedule.call_count);
-  assert_eq(&sprint.schedule, cutest_mock.cleanup_schedule.args.arg0);
+  assert_eq(1, m.cleanup_schedule.call_count);
+  assert_eq(&sprint.schedule, m.cleanup_schedule.args.arg0);
 }
 
 /*
@@ -586,13 +592,13 @@ test(sprints_read_shall_return_1_if_specified_file_could_not_be_opened) {
 }
 
 test(sprints_read_shall_return_2_if_specified_file_could_not_be_read) {
-  cutest_mock.fopen.retval = (FILE*)5678;
+  m.fopen.retval = (FILE*)5678;
   assert_eq(2, sprints_read((const char*)1234, NULL));
 }
 
 test(sprints_read_shall_return_3_if_found_an_inbalid_sprint_row) {
-  cutest_mock.fopen.retval = (FILE*)5678;
-  cutest_mock.fgets.retval = (char*)8765;
+  m.fopen.retval = (FILE*)5678;
+  m.fgets.retval = (char*)8765;
   assert_eq(3, sprints_read((const char*)1234, NULL));
 }
 
@@ -613,14 +619,14 @@ int feof_third_call_will_return_1(FILE* stream) {
 
 test(sprints_read_shall_call_sprint_init_correctly) {
   feof_third_call_will_return_1_cnt = 0;
-  cutest_mock.fopen.retval = (FILE*)5678;
-  cutest_mock.fgets.func = fgets_with_contents;
-  cutest_mock.feof.func = feof_third_call_will_return_1;
-  cutest_mock.is_sprint.retval = 1;
+  m.fopen.retval = (FILE*)5678;
+  m.fgets.func = fgets_with_contents;
+  m.feof.func = feof_third_call_will_return_1;
+  m.is_sprint.retval = 1;
   assert_eq(0, sprints_read((const char*)1234, NULL));
-  assert_eq(1, cutest_mock.sprint_init.call_count);
-  assert_eq(NULL != cutest_mock.sprint_init.args.arg0);
-  assert_eq(strncmp("Foo", cutest_mock.sprint_init.args.arg1, 3));
+  assert_eq(1, m.sprint_init.call_count);
+  assert_eq(1, NULL != m.sprint_init.args.arg0);
+  assert_eq(1, 0 == strncmp("Foo", m.sprint_init.args.arg1, 3));
 }
 
 int sprint_row_callback_cnt = 0;
@@ -633,10 +639,10 @@ int sprint_row_callback(const sprint_t* sprint) {
 test(sprints_read_shall_call_callback_function_correctly) {
   feof_third_call_will_return_1_cnt = 0;
   sprint_row_callback_cnt = 0;
-  cutest_mock.fopen.retval = (FILE*)5678;
-  cutest_mock.feof.func = feof_third_call_will_return_1;
-  cutest_mock.fgets.retval = (char*)8765;
-  cutest_mock.is_sprint.retval = 1;
+  m.fopen.retval = (FILE*)5678;
+  m.feof.func = feof_third_call_will_return_1;
+  m.fgets.retval = (char*)8765;
+  m.is_sprint.retval = 1;
   assert_eq(0, sprints_read((const char*)1234, sprint_row_callback));
   assert_eq(1, sprint_row_callback_cnt);
 }

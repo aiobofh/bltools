@@ -54,9 +54,9 @@ get an idea on how to use them. But since the project is pretty young you
 might still need to refer to the source code to understand how to use the
 tools in the best way.
 
-You can find excessive test-code for the common code and the parser code in
-the source-folder. This is also a nice example hon how to use the CUTest test
-framework, which can be found here https://github.com/aiobofh/cutest.
+You can find excessive check-code for the common code and the parser code in
+the test-folder. This is also a nice example hon how to use the Tarsio check
+framework, which can be found here https://github.com/aiobofh/tarsio .
 
 Backlogs
 --------
@@ -305,5 +305,5 @@ Note
 ----
 
 Most of the executable tools build with this toolkit are still very
-experimental. However the code library underneath is fairly well tested
-using CUTest https://github.com/aiobofh/cutest.
+experimental. However the code library underneath is fairly well checked
+using Tarsio https://github.com/aiobofh/tarsio .

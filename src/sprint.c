@@ -386,8 +386,7 @@ static void init_dates(date_t* start, date_t* end, const char* str) {
   get_end_date(end, str);
 }
 
-static void init_schedule(int* cnt, date_t* start, date_t** sched,
-                         const char* str) {
+static void init_schedule(int* cnt, date_t* start, date_t** sched, const char* str) {
   const int schedule_cnt = get_days_in_schedule(str);
   *sched = malloc(sizeof(**sched) * schedule_cnt);
   assert(NULL != *sched && "Out of memory for schedule array");

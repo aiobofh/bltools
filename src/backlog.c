@@ -16,8 +16,7 @@ static int interval_read(char* dst, FILE* fd) {
   return 0;
 }
 
-static int classify_as_a_story(const char* buf, const char* filename,
-                               int row) {
+static int classify_as_a_story(const char* buf, const char* filename, int row) {
   if (0 == is_story(buf)) {
     fprintf(stderr,
             "ERROR: %s:%d: Expected a correctly formatted story:\n"
@@ -27,11 +26,7 @@ static int classify_as_a_story(const char* buf, const char* filename,
   return 0;
 }
 
-static int is_done_story_correctly_formatted(const char* buf1,
-                                             const char* buf2,
-                                             const char* filename,
-                                             int row,
-                                             story_t* story) {
+static int is_done_story_correctly_formatted(const char* buf1, const char* buf2, const char* filename, int row, story_t* story) {
   if (ESTIMATE_RANGE == story->estimate_type) {
     fprintf(stderr,
             "ERROR: %s:%d: Expected a correctly formatted DONE "

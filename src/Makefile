@@ -1,4 +1,7 @@
-Q ?= @
+Q?=@
+
+MAKEFLAGS += --no-builtin-rules
+CFLAGS=-Wall -pedantic -std=c99 -I.
 
 export Q
 
@@ -6,33 +9,30 @@ export Q
 
 all:
 	$(Q)export Q="${Q}"; \
-	export MAKEFLAGS="${MAKEFLAGS}";\
 	${MAKE} -s blcheck && \
 	${MAKE} -s blsum && \
 	${MAKE} -s blsprints && \
 	${MAKE} -s blburn && \
 	${MAKE} -s blvelocity
 
-#cutest:
-#	$(Q)git clone -b v1.0.3 "https://github.com/aiobofh/cutest.git" -q
+.PRECIOUS: %.o
+%.o: %.c
+	${Q}${CC} ${CFLAGS} -o $@ -c $<
 
-#-include cutest/src/cutest.mk
-#-include cutest/src/coverage.mk
+blcheck: blcheck.o date.o story.o backlog.o
+	$(CC) -o $@ $^
 
-blcheck: blcheck.c date.c story.c backlog.c
-	$(CC) -o $@ $^ -O2
+blsum: blsum.o date.o story.o backlog.o
+	$(CC) -o $@ $^
 
-blsum: blsum.c date.c story.c backlog.c
-	$(CC) -o $@ $^ -O2
+blsprints: blsprints.o date.o sprint.o
+	$(CC) -o $@ $^
 
-blsprints: blsprints.c date.c sprint.c
-	$(CC) -o $@ $^ -O2
+blburn: blburn.o date.o sprint.o story.o backlog.o
+	$(CC) -o $@ $^
 
-blburn: blburn.c date.c sprint.c story.c backlog.c
-	$(CC) -o $@ $^ -O2
-
-blvelocity: blvelocity.c date.c sprint.c story.c backlog.c
-	$(CC) -o $@ $^ -O2
+blvelocity: blvelocity.o date.o sprint.o story.o backlog.o
+	$(CC) -o $@ $^
 
 clean::
 	$(Q)$(RM) -rf *~ blcheck blsum blsprints blburn
