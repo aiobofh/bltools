@@ -16,7 +16,7 @@ TTMPROOT=/tmp/
 TSRCROOT=../src/
 
 check::
-	${MAKE} --no-print-directory -C ../src/
+	@${MAKE} --no-print-directory -C ../src/
 
 #
 # Depend on the Tarsio make system
