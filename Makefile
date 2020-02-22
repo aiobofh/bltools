@@ -4,5 +4,6 @@ all:
 	${MAKE} --no-print-directory -C test xml
 
 clean:
-	@${MAKE} --no-print-directory -C src clean && \
+	@${RM} *~ && \
+	${MAKE} --no-print-directory -C src clean && \
 	${MAKE} --no-print-directory -C test clean

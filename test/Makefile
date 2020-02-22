@@ -12,7 +12,7 @@ CFLAGS=-Wall -pedantic -std=c99 -I.
 #
 # Configure Tarsio
 #
-TTMPROOT=/tmp/
+TTMPROOT=/tmp/tarsio/${USER}/
 TSRCROOT=../src/
 
 check::
