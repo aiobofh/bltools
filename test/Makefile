@@ -22,6 +22,7 @@ check::
 # Depend on the Tarsio make system
 #
 -include $(shell pkg-config --variable=includedir tarsio)/tarsio.mk
+-include $(shell pkg-config --variable=includedir tarsio)/coverage.mk
 
 #
 # Additinal linking information (for module-tests real code is linked)
